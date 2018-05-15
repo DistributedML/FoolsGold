@@ -1,0 +1,113 @@
+cfung@leviathan:~/workspace/DistML/NewEvalSybil/TorML/ML$ python code/ML_main.py mnist 1000 990_1_7
+Start training across 1000 clients.
+/home/cfung/workspace/DistML/NewEvalSybil/TorML/ML/code/logistic_aggregator.py:256: RuntimeWarning: divide by zero encountered in log
+  wv = (np.log(wv / (1 - wv)) + 0.5)
+Train error: 0.7240500000
+/home/cfung/workspace/DistML/NewEvalSybil/TorML/ML/code/logistic_aggregator.py:249: RuntimeWarning: divide by zero encountered in double_scalars
+  cs[i][j] = cs[i][j] * maxcs[i]/maxcs[j]
+Train error: 0.3890333333
+Train error: 0.3150500000
+Train error: 0.2289500000
+Train error: 0.3999666667
+Train error: 0.2433833333
+Train error: 0.2378500000
+Train error: 0.2574166667
+Train error: 0.1798500000
+Train error: 0.2915833333
+Train error: 0.1554833333
+Train error: 0.1663833333
+Train error: 0.2140166667
+Train error: 0.2033500000
+Train error: 0.2377333333
+Train error: 0.2105666667
+Train error: 0.1863000000
+Train error: 0.1852333333
+Train error: 0.1677000000
+Train error: 0.1788833333
+Train error: 0.1702166667
+Train error: 0.1766000000
+Train error: 0.1674500000
+Train error: 0.2087500000
+Train error: 0.1668500000
+Train error: 0.1566000000
+Train error: 0.1767000000
+Train error: 0.1505500000
+Train error: 0.1604500000
+Train error: 0.1521833333
+Train error: 0.1573166667
+Train error: 0.1597833333
+Train error: 0.2002666667
+Train error: 0.1531666667
+Train error: 0.1478833333
+Train error: 0.1579000000
+Train error: 0.1680666667
+Train error: 0.1638500000
+Train error: 0.1559166667
+Train error: 0.1585666667
+Train error: 0.1448166667
+Train error: 0.1640000000
+Train error: 0.1464500000
+Train error: 0.1631000000
+Train error: 0.1313000000
+Train error: 0.1567666667
+Train error: 0.1595333333
+Train error: 0.1394333333
+Train error: 0.1692333333
+Train error: 0.1731166667
+Train error: 0.1448500000
+Train error: 0.1548000000
+Train error: 0.1516500000
+Train error: 0.2104666667
+Train error: 0.1368166667
+Train error: 0.1437666667
+Train error: 0.1451666667
+Train error: 0.1581833333
+Train error: 0.1494000000
+Train error: 0.1310833333
+Train error: 0.1898000000
+Train error: 0.1404166667
+Train error: 0.1729666667
+Train error: 0.1401666667
+Train error: 0.1466833333
+Train error: 0.1821000000
+Train error: 0.1457166667
+Train error: 0.1501500000
+Train error: 0.1233833333
+Train error: 0.1775666667
+Train error: 0.1615500000
+Train error: 0.1389500000
+Train error: 0.1640166667
+Train error: 0.1469833333
+Train error: 0.1383166667
+Train error: 0.1296166667
+Train error: 0.1542500000
+Train error: 0.1799000000
+Train error: 0.1462500000
+Train error: 0.1537333333
+Train error: 0.1640333333
+Train error: 0.1762500000
+Train error: 0.1567000000
+Train error: 0.1531166667
+Train error: 0.1911833333
+Train error: 0.1724833333
+Train error: 0.1357500000
+Train error: 0.1598666667
+Train error: 0.1340500000
+Train error: 0.1420000000
+Train error: 0.2014166667
+Train error: 0.1817333333
+Train error: 0.1988333333
+Train error: 0.1803333333
+Train error: 0.1420333333
+Train error: 0.1492833333
+Train error: 0.1409666667
+Train error: 0.1768166667
+Train error: 0.1891666667
+Train error: 0.1457500000
+Done iterations!
+('Train error: %d', 0.15511666666666668)
+('Test error: %d', 0.1493)
+Overall Error: 0.8315745991212588
+Target Training Accuracy on 1s: 0.9500148323939483
+Target Training Accuracy on misslabel 7s: 0.8654429369513168
+Target Attack Rate (1 to 7): 0.0011865915158706616

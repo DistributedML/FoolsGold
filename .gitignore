@@ -1,0 +1,33 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
+.glide/
+
+*-Log.txt
+*.pyc
+*/include
+*/lib
+*/local
+*/bin
+*/pip-selfcheck.json
+scale_results
+
+ML/mnist/*ubyte
+ML/data/mnist/*.npy
+ML/data/amazon/*.npy
+ML/data/kddcup/*.npy
+ML/data/mnist/*ubyte
+ML/data/amazon/*ubyte
+ML/data/kddcup/*ubyte
+ML/data/*.zip
+ML/data/*.arff

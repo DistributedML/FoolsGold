@@ -1,0 +1,68 @@
+training_error: [0.005714285714285714, 0.0, 0.0, 0.0]
+attack_rate: [0.0952380952381, 0.0, 0.0, 0.0]
+
+chris@liskov:~/NewTor/TorML/ML$ python code/ML_batch.py amazon 100 5_0_5
+batch_size: 1
+Start training across 55 clients.
+Train error: 0.7342857143
+Done iterations!
+('Train error: %d', 0.0057142857142857143)
+('Test error: %d', 0.2911111111111111)
+Overall Error: 0.996112730807
+Target Training Accuracy on 0s: 0.904761904762
+Target Training Accuracy on misslabel 5s: 1.0
+Target Attack Rate (0 to 5): 0.0952380952381
+
+train err: 
+[0.0057142857142857143]
+attack rate: 
+[0.095238095238095233]
+batch_size: 5
+Start training across 55 clients.
+Train error: 0.3771428571
+Done iterations!
+('Train error: %d', 0.0)
+('Test error: %d', 0.18666666666666668)
+Overall Error: 1.0
+Target Training Accuracy on 0s: 1.0
+Target Training Accuracy on misslabel 5s: 1.0
+Target Attack Rate (0 to 5): 0.0
+
+train err: 
+[0.0057142857142857143, 0.0]
+attack rate: 
+[0.095238095238095233, 0.0]
+batch_size: 10
+Start training across 55 clients.
+Train error: 0.2200000000
+Done iterations!
+('Train error: %d', 0.0)
+('Test error: %d', 0.20666666666666667)
+Overall Error: 1.0
+Target Training Accuracy on 0s: 1.0
+Target Training Accuracy on misslabel 5s: 1.0
+Target Attack Rate (0 to 5): 0.0
+
+train err: 
+[0.0057142857142857143, 0.0, 0.0]
+attack rate: 
+[0.095238095238095233, 0.0, 0.0]
+batch_size: 20
+Start training across 55 clients.
+Train error: 0.0419047619
+Done iterations!
+('Train error: %d', 0.0)
+('Test error: %d', 0.22444444444444445)
+Overall Error: 1.0
+Target Training Accuracy on 0s: 1.0
+Target Training Accuracy on misslabel 5s: 1.0
+Target Attack Rate (0 to 5): 0.0
+
+train err: 
+[0.0057142857142857143, 0.0, 0.0, 0.0]
+attack rate: 
+[0.095238095238095233, 0.0, 0.0, 0.0]
+batch_size: 50
+Start training across 55 clients.
+Train error: 0.0295238095
+

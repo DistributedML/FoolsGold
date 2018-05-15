@@ -1,0 +1,39 @@
+Start training across 15 clients.
+Train error: 0.4409666667
+Train error: 0.1093666667
+Train error: 0.0997833333
+Train error: 0.0972666667
+Train error: 0.0968833333
+Train error: 0.0923166667
+Train error: 0.0920333333
+Train error: 0.0909833333
+Train error: 0.0902833333
+Train error: 0.0895333333
+Train error: 0.0894333333
+Train error: 0.0885333333
+Train error: 0.0874666667
+Train error: 0.0872333333
+Train error: 0.0909833333
+Train error: 0.0873833333
+Train error: 0.0861166667
+Train error: 0.0870500000
+Train error: 0.0888166667
+Train error: 0.0872333333
+Train error: 0.0875666667
+Train error: 0.0880666667
+Train error: 0.0861666667
+Train error: 0.0873333333
+Train error: 0.0877666667
+Train error: 0.0865333333
+Train error: 0.0874333333
+Train error: 0.0869333333
+Train error: 0.0886500000
+Train error: 0.0872000000
+Done iterations!
+('Train error: %d', 0.08781666666666667)
+('Test error: %d', 0.089)
+Overall Error: 0.9081640316947689
+Target Training Accuracy on 1s: 0.9439335508751112
+Target Training Accuracy on misslabel 2s: 0.8697549513259483
+Target Attack Rate (1 to 2): 0.004598042123998813
+

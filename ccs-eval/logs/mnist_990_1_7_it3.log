@@ -1,0 +1,20 @@
+Start training across 1000 clients.
+Train error: 0.7156500000
+Train error: 0.1184833333
+Train error: 0.1058833333
+Train error: 0.1002000000
+Train error: 0.0956500000
+Train error: 0.0955500000
+Train error: 0.0932000000
+Train error: 0.0899666667
+Train error: 0.0906333333
+Train error: 0.0885833333
+Train error: 0.0888666667
+Train error: 0.0887166667
+Train error: 0.0882500000
+Train error: 0.0860666667
+Train error: 0.0856666667
+--Return--
+> /home/cfung/workspace/DistML/NewEvalSybil/TorML/ML/code/ML_99.py(24)debug_signal_handler()->None
+-> pdb.set_trace()
+(Pdb) (Pdb) 

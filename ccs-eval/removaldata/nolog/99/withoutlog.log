@@ -1,0 +1,116 @@
+cfung@leviathan:~/workspace/DistML/NewEvalSybil/TorML/ML/removaldata/nolog$ python code/ML_nolog.py mnist 1000 990_1_7
+python: can't open file 'code/ML_nolog.py': [Errno 2] No such file or directory
+cfung@leviathan:~/workspace/DistML/NewEvalSybil/TorML/ML/removaldata/nolog$ cd ..
+cfung@leviathan:~/workspace/DistML/NewEvalSybil/TorML/ML/removaldata$ cd ..
+cfung@leviathan:~/workspace/DistML/NewEvalSybil/TorML/ML$ python code/ML_nolog.py mnist 1000 990_1_7
+Start training across 1000 clients.
+/home/cfung/workspace/DistML/NewEvalSybil/TorML/ML/code/logistic_aggregator.py:199: RuntimeWarning: divide by zero encountered in double_scalars
+  cs[i][j] = cs[i][j] * maxcs[i]/maxcs[j]
+Train error: 0.8955833333
+Train error: 0.5944833333
+Train error: 0.5113666667
+Train error: 0.5726333333
+Train error: 0.4058833333
+Train error: 0.4314000000
+Train error: 0.3629333333
+Train error: 0.3594166667
+Train error: 0.3693000000
+Train error: 0.4013333333
+Train error: 0.4138500000
+Train error: 0.3714000000
+Train error: 0.4345333333
+Train error: 0.4128833333
+Train error: 0.3601666667
+Train error: 0.4277500000
+Train error: 0.3483166667
+Train error: 0.4222333333
+Train error: 0.8752000000
+Train error: 0.3753000000
+Train error: 0.3528833333
+Train error: 0.3528000000
+Train error: 0.3348000000
+Train error: 0.4388500000
+Train error: 0.3583000000
+Train error: 0.3150833333
+Train error: 0.2965833333
+Train error: 0.3308333333
+Train error: 0.3327666667
+Train error: 0.3751000000
+Train error: 0.3678666667
+Train error: 0.3420833333
+Train error: 0.3385000000
+Train error: 0.3139500000
+Train error: 0.3090000000
+Train error: 0.3540000000
+Train error: 0.3695333333
+Train error: 0.3505333333
+Train error: 0.3608166667
+Train error: 0.3074833333
+Train error: 0.3184833333
+Train error: 0.3233166667
+Train error: 0.3527333333
+Train error: 0.2683500000
+Train error: 0.4207666667
+Train error: 0.3362333333
+Train error: 0.5979000000
+Train error: 0.4203166667
+Train error: 0.3351833333
+Train error: 0.3502500000
+Train error: 0.2984666667
+Train error: 0.2941000000
+Train error: 0.2853500000
+Train error: 0.3326000000
+Train error: 0.3263833333
+Train error: 0.2784500000
+Train error: 0.3528500000
+Train error: 0.2582000000
+Train error: 0.3295166667
+Train error: 0.2963500000
+Train error: 0.3007500000
+Train error: 0.3129166667
+Train error: 0.2897333333
+Train error: 0.3323166667
+Train error: 0.2945833333
+Train error: 0.3034333333
+Train error: 0.3344333333
+Train error: 0.2669000000
+Train error: 0.3077500000
+Train error: 0.3134500000
+Train error: 0.2800500000
+Train error: 0.3045666667
+Train error: 0.2999500000
+Train error: 0.3068333333
+Train error: 0.3173500000
+Train error: 0.2830166667
+Train error: 0.2985000000
+Train error: 0.3240000000
+Train error: 0.2665833333
+Train error: 0.2743000000
+Train error: 0.3563666667
+Train error: 0.2779833333
+Train error: 0.3239833333
+Train error: 0.2987000000
+Train error: 0.2607666667
+Train error: 0.2892166667
+Train error: 0.2945333333
+Train error: 0.2793666667
+Train error: 0.2947333333
+Train error: 0.2802000000
+Train error: 0.3055833333
+Train error: 0.2840666667
+Train error: 0.2666833333
+Train error: 0.3037666667
+Train error: 0.1928166667
+Train error: 0.2499500000
+Train error: 0.2606000000
+Train error: 0.2828833333
+Train error: 0.2738833333
+Train error: 0.2802000000
+Done iterations!
+('Train error: %d', 0.30035)
+('Test error: %d', 0.2993)
+Overall Error: 0.7873558901949003
+Target Training Accuracy on 1s: 0.006822901216256304
+Target Training Accuracy on misslabel 7s: 0.8047885075818036
+Target Attack Rate (1 to 7): 0.9712251557401365
+

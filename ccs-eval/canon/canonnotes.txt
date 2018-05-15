@@ -1,0 +1,26 @@
+MNIST
+A-1 MNIST
+A-5 MNIST
+A-2x5 MNIST
+A-5x5 MNIST
+A-99
+
+KDD
+A-1 KDD
+A-5 KDD
+A-AllOnOne  
+
+Amazon
+A-1Amazon
+A-5 Amazon
+A-2x5 Amazon
+A-5x5 Amazon
+
+
+A-5
+Overall Error: 0.909159187352
+Target Training Accuracy on 1s: 0.968851972708
+Target Training Accuracy on misslabel 7s: 0.922106943336
+Target Attack Rate (1 to 7): 0.00222485909226
+
+
