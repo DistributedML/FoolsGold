@@ -64,6 +64,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iter=3000):
     batch_size = 50
     iterations = iter
     epsilon = 5
+    topk = int(numParams / 2)
 
     list_of_models = []
 
@@ -78,35 +79,28 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iter=3000):
     weights = np.random.rand(numParams) / 100.0
     train_progress = []
 
+    summed_deltas = np.zeros((numClients, numParams))
 
-    #sum yourself
-    #sum pairwise
-    ds = np.zeros((numClients, numParams))
-    #cs = np.zeros((numClients, numClients))
     for i in xrange(iterations):
 
-        total_delta = np.zeros((numClients, numParams))
+        delta = np.zeros((numClients, numParams))
+        sig_features_idx = np.argpartition(weights, -topk)[-topk:]
 
         for k in range(len(list_of_models)):
-            total_delta[k, :] = list_of_models[k].privateFun(1, weights, batch_size)
+            delta[k, :] = list_of_models[k].privateFun(1, weights, batch_size)
 
-
-        initial_distance = np.random.rand()*10
-        ds = ds + total_delta
-        #scs = logistic_aggregator.get_cos_similarity(total_delta)
-        #cs = cs + scs
-        # distance, poisoned = logistic_aggregator.search_distance_euc(total_delta, initial_distance, False, [], np.zeros(numClients), 0, scs)
-        # delta, dist, nnbs = logistic_aggregator.euclidean_binning_hm(total_delta, distance, logistic_aggregator.get_nnbs_euc_cos, scs)
-        #print(distance)
-        delta = logistic_aggregator.cos_aggregate_sum(total_delta, ds, i)
-        #delta = logistic_aggregator.cos_aggregate_sum_nomem(total_delta)
-        weights = weights + delta
+        # Track the total vector from each individual client
+        summed_deltas = summed_deltas + delta
+        
+        # Use Foolsgold
+        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i)
+        weights = weights + this_delta
 
         if i % 100 == 0:
             error = softmax_test.train_error(weights)
             print("Train error: %.10f" % error)
             train_progress.append(error)
-    #pdb.set_trace()
+
     print("Done iterations!")
     print("Train error: %d", softmax_test.train_error(weights))
     print("Test error: %d", softmax_test.test_error(weights))

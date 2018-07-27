@@ -84,32 +84,38 @@ def cos_aggregate_sum_norecalib(full_deltas, sum_deltas, i):
 '''
 Aggregates history of gradient directions
 '''
-def cos_aggregate_sum(full_deltas, sum_deltas, i):
-    deltas = np.reshape(full_deltas, (n, d))
-    full_grad = np.zeros(d)
+def foolsgold(this_delta, summed_deltas, sig_features_idx, iter):
 
-    cs = smp.cosine_similarity(sum_deltas) - np.eye(n)
+    # Take all the features of sig_features_idx for each client
+    sig_filtered_deltas = np.take(summed_deltas, sig_features_idx, axis=1)
+    cs = smp.cosine_similarity(sig_filtered_deltas) - np.eye(n)
+
+    # Pardoning: reweight by the max value seen
     maxcs = np.max(cs, axis=1)
     for i in range(n):
         for j in range(n):
             if i == j:
                 continue
             if maxcs[i] < maxcs[j]:
-                cs[i][j] = cs[i][j] * maxcs[i]/maxcs[j]
+                cs[i][j] = cs[i][j] * maxcs[i] / maxcs[j]
+
     wv = 1 - (np.max(cs, axis=1))
     wv[wv > 1] = 1
     wv[wv < 0] = 0
+
     # Rescale so that max value is wv
     wv = wv / np.max(wv)
     wv[(wv == 1)] = .99
+    
+    # Logit function
     wv = (np.log(wv / (1 - wv)) + 0.5)
-
     wv[(np.isinf(wv) + wv > 1)] = 1
-
     wv[(wv < 0)] = 0
 
-    full_grad += np.dot(deltas.T, wv)
-    return full_grad
+    # Apply the weight vector on this delta
+    delta = np.reshape(this_delta, (n, d))
+
+    return np.dot(delta.T, wv)
 '''
 Aggregates history of gradient directions
 '''

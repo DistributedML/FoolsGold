@@ -3,7 +3,7 @@ import pandas as pd
 import pdb
 
 
-def eval(Xtest, ytest, weights, correctLabel, missLabel, numClasses, numFeatures):
+def eval(Xtest, ytest, weights, correctLabel, targetLabel, numClasses, numFeatures):
 
     # hardcoded for MNIST
     W = np.reshape(weights, (numClasses, numFeatures))
@@ -11,18 +11,20 @@ def eval(Xtest, ytest, weights, correctLabel, missLabel, numClasses, numFeatures
 
     targetIdx = np.where(ytest == correctLabel)
     otherIdx = np.where(ytest != correctLabel)
-    overall = np.mean(yhat[otherIdx] == ytest[otherIdx])
+    overall = np.mean(yhat == ytest)
+    others = np.mean(yhat[otherIdx] == ytest[otherIdx])
     correct1 = np.mean(yhat[targetIdx] == correctLabel)
-    attacked1 = np.mean(yhat[targetIdx] == missLabel)
+    attacked1 = np.mean(yhat[targetIdx] == targetLabel)
 
-    misslabel_idx = np.where(ytest == missLabel)
-    misslabel_correct = np.mean(yhat[misslabel_idx] == missLabel)
+    targetlabel_idx = np.where(ytest == targetLabel)
+    targetlabel_correct = np.mean(yhat[targetlabel_idx] == targetLabel)
 
-    print("Overall Error: " + str(overall))
-    print("Target Training Accuracy on " + str(correctLabel) + "s: " + str(correct1))
-    print("Target Training Accuracy on misslabel " + str(missLabel) + "s: " + str(misslabel_correct))
-    print("Target Attack Rate (" + str(correctLabel) + " to " + str(missLabel) + "): " + str(attacked1)  + "\n")
-    return overall, correct1, misslabel_correct, attacked1
+    print("Accuracy overall: " + str(overall))
+    print("Accuracy on other digits: " + str(others))
+    print("Target Training Accuracy on source label " + str(correctLabel) + "s: " + str(correct1))
+    print("Target Training Accuracy on target label " + str(targetLabel) + "s: " + str(targetlabel_correct))
+    print("Target Attack Rate (" + str(correctLabel) + " to " + str(targetLabel) + "): " + str(attacked1)  + "\n")
+    return overall, correct1, targetlabel_correct, attacked1
 
 
 

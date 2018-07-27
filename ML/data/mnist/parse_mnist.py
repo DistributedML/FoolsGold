@@ -4,6 +4,10 @@ import pdb
 import numpy as np
 import matplotlib.pyplot as plt
 
+#################################################################
+#### IMPORTANT!!!
+#### Download and gunzip files from http://yann.lecun.com/exdb/mnist/
+#################################################################
 
 def main():
 
