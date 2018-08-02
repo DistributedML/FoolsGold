@@ -92,13 +92,22 @@ def slice_for_tm():
 
     for k in range(10):
 
-        idx = np.where((ytrain == k))[0]
+        idx = np.where(ytrain == k)[0]
 
         class_slice = Xtrain[idx]
         data_slice = np.hstack((class_slice, ytrain[idx][:, None]))
 
         print("slice " + str(k) + " is shape " + str(data_slice.shape))
-        np.save("mnist" + str(k), data_slice)
+
+        nk = data_slice.shape[0]
+
+        data_slice1 = data_slice[0 : int(nk / 3)]
+        data_slice2 = data_slice[int(nk / 3) : int(nk / 1.5)]
+        data_slice3 = data_slice[int(nk / 1.5) : nk]
+
+        np.save("mnist" + str(k) + "a", data_slice1)
+        np.save("mnist" + str(k) + "b", data_slice2)
+        np.save("mnist" + str(k) + "c", data_slice3)
 
     train_slice = np.hstack((Xtrain, np.reshape(ytrain, (len(ytrain), 1))))
     np.save("mnist_train", train_slice)

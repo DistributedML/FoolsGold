@@ -46,7 +46,7 @@ def main():
 
     pdb.set_trace()
 
-    np.save("kddcup_bad", baddata)
+    np.save("kddcup_bad_0_11", baddata)
 
 # pd.get_dummies(df, columns=[1, 2, 3])
 

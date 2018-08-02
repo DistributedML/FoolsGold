@@ -12,30 +12,34 @@ def main():
     sfflidx = np.random.permutation(data.shape[0])
     data = data[sfflidx]
 
-    testidx = int(data.shape[0] * 0.7)
+    # testidx = int(data.shape[0] * 0.7)
 
-    testdata = data[testidx:, ]
-    traindata = data[0:testidx, ]
+    # testdata = data[testidx:, ]
+    # traindata = data[0:testidx, ]
 
     # standardize each column
-    traindata[:, 0:10000], _, _ = standardize_cols(traindata[:, 0:10000])
-    testdata[:, 0:10000], _, _ = standardize_cols(testdata[:, 0:10000])
+    data[:, 0:10000], _, _ = standardize_cols(data[:, 0:10000])
+    # testdata[:, 0:10000], _, _ = standardize_cols(testdata[:, 0:10000])
 
     for i in range(int(np.max(data[:, 10000]) + 1)):
 
-        idx = np.where(traindata[:, 10000] == i)[0]
+        idx = np.where(data[:, 10000] == i)[0]
         print("Label " + str(i) + " has " + str(len(idx)))
-        labeldata = traindata[idx]
-        np.save("amazon" + str(i), labeldata)
 
-    np.save("amazon_train", traindata)
-    np.save("amazon_test", testdata)
+        labeldata1 = data[idx[0:15]]
+        labeldata2 = data[idx[15:30]]
 
-    # # Make a bad dataset, push class 0 to 11 (normal)
+        np.save("amazon" + str(i) + "a", labeldata1)
+        np.save("amazon" + str(i) + "b", labeldata2)
+
+    np.save("amazon_all", data)
+    # np.save("amazon_test", testdata)
+
+    # Make a bad dataset, push class 0 to 11 (normal)
     # baddata = traindata[np.where(traindata[:, 41] == 0)[0]]
     # baddata[:, -1] = 11
 
-    # np.save("kddcup_bad", baddata)
+    # np.save("amazon_bad", baddata)
 
 
 def load_raw():

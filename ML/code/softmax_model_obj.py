@@ -144,3 +144,39 @@ class SoftMaxModel:
         # f_new, g_new = funObj(w_new, X[idx, :], y[idx], batch_size)
 
         return delta
+
+class SoftMaxModelEvil(SoftMaxModel):
+
+    def __init__(self, dataset, epsilon, numClasses):
+
+        SoftMaxModel.__init__(self, dataset, epsilon, numClasses)
+
+        batch_size = 5
+        epsilon = 5
+        iterations = 3000
+
+        # Just train the goal poisoned model locally
+        self.weights = np.random.rand(self.d) / 100.0
+
+        for i in xrange(iterations):
+
+            if batch_size > 0 and batch_size < self.X.shape[0]:
+                idx = np.random.choice(self.X.shape[0], batch_size, replace=False)
+            else:
+                # Just take the full range
+                idx = np.arange(self.X.shape[0])
+
+            f, g = self.funObj(self.weights, self.X[idx, :], self.y[idx],
+               batch_size)
+            delta = -alpha * g
+            self.weights = self.weights + delta
+
+    def privateFun(self, theta, ww, batch_size=0):
+
+        ww = np.array(ww)
+
+        # Send the vector that just moves the model to the poisoning goal
+        delta = self.weights - ww
+
+        return delta
+    

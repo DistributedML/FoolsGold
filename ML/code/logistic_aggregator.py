@@ -18,9 +18,6 @@ def init(num_clients, num_features):
     global n
     n = num_clients
 
-    # global hit_matrix
-    # hit_matrix = np.zeros((n, n))
-
 
 '''
 Returns the pairwise cosine similarity of client gradients
@@ -29,57 +26,6 @@ def get_cos_similarity(full_deltas):
     if True in np.isnan(full_deltas):
         pdb.set_trace()
     return smp.cosine_similarity(full_deltas)
-
-
-'''
-Aggregates history of gradient directions
-'''
-def cos_aggregate_sum_nolog(full_deltas, sum_deltas, i):
-    deltas = np.reshape(full_deltas, (n, d))
-    full_grad = np.zeros(d)
-
-    cs = smp.cosine_similarity(sum_deltas) - np.eye(n)
-    maxcs = np.max(cs, axis=1)
-    for i in range(n):
-        for j in range(n):
-            if i == j:
-                continue
-            if maxcs[i] < maxcs[j]:
-                cs[i][j] = cs[i][j] * maxcs[i]/maxcs[j]
-    wv = 1 - (np.max(cs, axis=1))
-    wv[wv > 1] = 1
-    wv[wv < 0] = 0
-
-
-    full_grad += np.dot(deltas.T, wv)
-
-    return full_grad
-
-'''
-Aggregates history of gradient directions
-'''
-def cos_aggregate_sum_norecalib(full_deltas, sum_deltas, i):
-    deltas = np.reshape(full_deltas, (n, d))
-    full_grad = np.zeros(d)
-
-    cs = smp.cosine_similarity(sum_deltas) - np.eye(n)
-    wv = 1 - (np.max(cs, axis=1))
-    wv[wv > 1] = 1
-    wv[wv < 0] = 0
-    # Rescale so that max value is wv
-    wv = wv / np.max(wv)
-    wv[(wv == 1)] = .99
-    wv = (np.log(wv / (1 - wv)) + 0.5)
-
-    wv[(np.isinf(wv) + wv > 1)] = 1
-
-    wv[(wv < 0)] = 0
-
-    full_grad += np.dot(deltas.T, wv)
-
-    return full_grad
-
-
 
 '''
 Aggregates history of gradient directions
@@ -112,85 +58,21 @@ def foolsgold(this_delta, summed_deltas, sig_features_idx, iter):
     wv[(np.isinf(wv) + wv > 1)] = 1
     wv[(wv < 0)] = 0
 
+    # Augment onto krum
+    clip = 1
+    scores = get_krum_scores(this_delta, n - clip)
+    bad_idx = np.argpartition(scores, n - clip)[(n - clip):n]
+
+    if iter == 1000:
+        pdb.set_trace()
+
+    # Filter out the highest krum scores
+    wv[bad_idx] = 0
+
     # Apply the weight vector on this delta
     delta = np.reshape(this_delta, (n, d))
 
     return np.dot(delta.T, wv)
-'''
-Aggregates history of gradient directions
-'''
-def cos_aggregate_sum_nomem(full_deltas):
-    deltas = np.reshape(full_deltas, (n, d))
-    full_grad = np.zeros(d)
-
-    cs = smp.cosine_similarity(full_deltas) - np.eye(n)
-    maxcs = np.max(cs, axis=1)
-    for i in range(n):
-        for j in range(n):
-            if i == j:
-                continue
-            if maxcs[i] < maxcs[j]:
-                cs[i][j] = cs[i][j] * maxcs[i]/maxcs[j]
-    wv = 1 - (np.max(cs, axis=1))
-    wv[wv > 1] = 1
-    wv[wv < 0] = 0
-    # Rescale so that max value is wv
-    wv = wv / np.max(wv)
-    wv[(wv == 1)] = .99
-    wv = (np.log(wv / (1 - wv)) + 0.5)
-
-    wv[(np.isinf(wv) + wv > 1)] = 1
-
-    wv[(wv < 0)] = 0
-
-    full_grad += np.dot(deltas.T, wv)
-
-    return full_grad
-
-'''
-Aggregates history of cosine similarities
-'''
-def cos_aggregate(full_deltas, cs, i):
-    if True in np.isnan(full_deltas):
-        pdb.set_trace()
-    deltas = np.reshape(full_deltas, (n, d))
-    full_grad = np.zeros(d)
-
-    ncs = cs - (i+1)*np.eye(n)
-    wv = 1 - (np.max(ncs, axis=1) / (i+1))
-    wv[wv > 1] = 1
-    wv[wv < 0] = 0
-    # Rescale so that max value is wv
-    wv = wv / np.max(wv)
-
-    wv = (np.log(wv / (1 - wv)) + 0.5)
-
-    wv[(np.isinf(wv) + wv > 1)] = 1
-
-    wv[(wv < 0)] = 0
-
-    full_grad += np.dot(deltas.T, wv)
-    return full_grad
-
-def cos_aggregate_nomem(full_deltas, scs):
-    deltas = np.reshape(full_deltas, (n, d))
-    full_grad = np.zeros(d)
-
-    scs = scs - np.eye(n)
-    wv = 1 - (np.max(scs, axis=1))
-    wv[wv > 1] = 1
-    wv[wv < 0] = 0
-    # Rescale so that max value is wv
-    wv = wv / np.max(wv)
-
-    wv = (np.log(wv / (1 - wv)) + 0.5)
-
-    wv[(np.isinf(wv) + wv > 1)] = 1
-
-    wv[(wv < 0)] = 0
-
-    full_grad += np.dot(deltas.T, wv)
-    return full_grad
 
 def average(full_deltas):
 
@@ -203,8 +85,8 @@ def krum(deltas, clip):
 
     # assume deltas is an array of size group * d
     scores = get_krum_scores(deltas, n - clip)
-
     good_idx = np.argpartition(scores, n - clip)[:(n - clip)]
+
     return np.mean(deltas[good_idx], axis=0)
 
 

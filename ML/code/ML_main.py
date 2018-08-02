@@ -2,7 +2,6 @@ from __future__ import division
 from numpy.linalg import norm
 import matplotlib.pyplot as plt
 
-
 import logistic_aggregator
 import softmax_model
 import softmax_model_test
@@ -17,8 +16,6 @@ import sys
 np.set_printoptions(suppress=True)
 
 # Just a simple sandbox for testing out python code, without using Go.
-
-
 def debug_signal_handler(signal, frame):
     import pdb
     pdb.set_trace()
@@ -28,20 +25,18 @@ import signal
 signal.signal(signal.SIGINT, debug_signal_handler)
 
 
-def basic_conv():
+def basic_conv(dataset, num_params, softmax_test, iterations=3000):
 
-    dataset = "mnist_train"
-
-    batch_size = 1
-    iterations = 4000
+    batch_size = 5
     epsilon = 5
 
     # Global
-    numFeatures = softmax_model.init(dataset, epsilon=epsilon)
+    # numFeatures = softmax_model.init(dataset, epsilon=epsilon)
+    softmax_model = softmax_model_obj.SoftMaxModel(dataset, epsilon, numClasses)
 
     print("Start training")
 
-    weights = np.random.rand(numFeatures) / 1000.0
+    weights = np.random.rand(num_params) / 100.0
 
     train_progress = np.zeros(iterations)
     test_progress = np.zeros(iterations)
@@ -51,18 +46,18 @@ def basic_conv():
         weights = weights + deltas
 
         if i % 100 == 0:
-            print("Train error: %d", softmax_model_test.train_error(weights))
-            print("Test error: %d", softmax_model_test.test_error(weights))
+            print("Train error: %.10f" % softmax_test.train_error(weights))
 
     print("Done iterations!")
-    print("Train error: %d", softmax_model_test.train_error(weights))
-    print("Test error: %d", softmax_model_test.test_error(weights))
+    print("Train error: %d", softmax_test.train_error(weights))
+    print("Test error: %d", softmax_test.test_error(weights))
+    return weights
 
 
-def non_iid(model_names, numClasses, numParams, softmax_test, iter=3000):
+def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
+    ideal_attack=False):
 
     batch_size = 50
-    iterations = iter
     epsilon = 5
     topk = int(numParams / 2)
 
@@ -70,6 +65,11 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iter=3000):
 
     for dataset in model_names:
         list_of_models.append(softmax_model_obj.SoftMaxModel(dataset, epsilon, numClasses))
+
+    # Include the model that sends the ideal vector on each iteration
+    if ideal_attack:
+        list_of_models.append(softmax_model_obj.SoftMaxModelEvil(dataPath +
+           "_bad_ideal_4_9", 1, numClasses))
 
     numClients = len(list_of_models)
     logistic_aggregator.init(numClients, numParams)
@@ -84,16 +84,24 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iter=3000):
     for i in xrange(iterations):
 
         delta = np.zeros((numClients, numParams))
-        sig_features_idx = np.argpartition(weights, -topk)[-topk:]
+        
+        # Significant features filter
+        #sig_features_idx = np.argpartition(weights, -topk)[-topk:]
+        sig_features_idx = np.arange(numParams)
 
         for k in range(len(list_of_models)):
             delta[k, :] = list_of_models[k].privateFun(1, weights, batch_size)
+
+            # normalize delta
+            if np.linalg.norm(delta[k, :]) > 1:
+                delta[k, :] = delta[k, :] / np.linalg.norm(delta[k, :])
 
         # Track the total vector from each individual client
         summed_deltas = summed_deltas + delta
         
         # Use Foolsgold
         this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i)
+        
         weights = weights + this_delta
 
         if i % 100 == 0:
@@ -114,7 +122,7 @@ if __name__ == "__main__":
     argv = sys.argv[1:]
 
     dataset = argv[0]
-    iter = int(argv[1])
+    iterations = int(argv[1])
 
     if (dataset == "mnist"):
         numClasses = 10
@@ -137,7 +145,9 @@ if __name__ == "__main__":
     models = []
 
     for i in range(numClasses):
-        models.append(dataPath + str(i))
+        # Try a little more IID
+        models.append(dataPath + str(i))# + str((i + 1) % 10) + str((i
+        # + 2) % 10))
 
     for attack in argv[2:]:
         attack_delim = attack.split("_")
@@ -148,11 +158,25 @@ if __name__ == "__main__":
             models.append(dataPath + "_bad_" + from_class + "_" + to_class)
 
     softmax_test = softmax_model_test.SoftMaxModelTest(dataset, numClasses, numFeatures)
-    weights = non_iid(models, numClasses, numParams, softmax_test, iter)
+    weights = non_iid(models, numClasses, numParams, softmax_test, iterations,
+        ideal_attack=True)
 
     for attack in argv[2:]:
         attack_delim = attack.split("_")
         from_class = attack_delim[1]
         to_class = attack_delim[2]
         score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures)
-    # pdb.set_trace()
+    
+    # Sandbox: difference between ideal bad model and global model
+    compare = False
+    if compare:
+        bad_weights = basic_conv(dataPath + "_bad_ideal_" + from_class + "_" +
+           to_class, numParams, softmax_test)
+        poisoning_compare.eval(Xtest, ytest, bad_weights, int(from_class),
+            int(to_class), numClasses, numFeatures)
+
+        diff = np.reshape(bad_weights - weights, (numClasses, numFeatures))
+        abs_diff = np.reshape(np.abs(bad_weights - weights), (numClasses,
+           numFeatures))
+
+    pdb.set_trace()
