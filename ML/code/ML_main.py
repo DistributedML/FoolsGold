@@ -59,6 +59,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
 
     batch_size = 50
     epsilon = 5
+    memory_size = 0
 
     list_of_models = []
 
@@ -98,8 +99,6 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
         ##################################
         # Use annealing strategy or not
         ##################################
-        memory_size = 0
-
         if memory_size > 0:
 
             for k in range(len(list_of_models)):
