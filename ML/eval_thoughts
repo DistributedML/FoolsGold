@@ -1,0 +1,19 @@
+mnist 1000 5_1_7
+
+No feature importance
+Done iterations!
+('Train error: %d', '0.08555')
+('Test error: %d', '0.0845')
+Accuracy overall: 0.91445
+Accuracy on other digits: 0.907976266476398
+Target Training Accuracy on source label 1s: 0.9655888460397508
+Target Training Accuracy on target label 7s: 0.9273743016759777
+Target Attack Rate (1 to 7): 0.0026698309107089885
+
+
+2 sybils rand noise - top k
+Accuracy overall: 0.8280833333333333
+Accuracy on other digits: 0.8506515453077472
+Target Training Accuracy on source label 1s: 0.649807178878671
+Target Training Accuracy on target label 7s: 0.8416600159616919
+Target Attack Rate (1 to 7): 0.2975378226045684

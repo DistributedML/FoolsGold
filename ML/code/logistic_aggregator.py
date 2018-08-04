@@ -27,13 +27,27 @@ def get_cos_similarity(full_deltas):
         pdb.set_trace()
     return smp.cosine_similarity(full_deltas)
 
+
+
+def importanceFeatureMapGlobal(model):
+    # aggregate = np.abs(np.sum( np.reshape(model, (10, 784)), axis=0))
+    # aggregate = aggregate / np.linalg.norm(aggregate)
+    # return np.repeat(aggregate, 10)
+    return np.abs(model) / np.sum(np.abs(model))
+
 '''
 Aggregates history of gradient directions
 '''
-def foolsgold(this_delta, summed_deltas, sig_features_idx, iter):
+def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model):
 
     # Take all the features of sig_features_idx for each client
     sig_filtered_deltas = np.take(summed_deltas, sig_features_idx, axis=1)
+
+    # smooth version of importance features
+    importantFeatures = importanceFeatureMapGlobal(model)
+    for i in range(n):
+        sig_filtered_deltas[i] = np.multiply(sig_filtered_deltas[i], importantFeatures)
+
     cs = smp.cosine_similarity(sig_filtered_deltas) - np.eye(n)
 
     # Pardoning: reweight by the max value seen
@@ -62,9 +76,6 @@ def foolsgold(this_delta, summed_deltas, sig_features_idx, iter):
     clip = 1
     scores = get_krum_scores(this_delta, n - clip)
     bad_idx = np.argpartition(scores, n - clip)[(n - clip):n]
-
-    if iter == 1000:
-        pdb.set_trace()
 
     # Filter out the highest krum scores
     wv[bad_idx] = 0
