@@ -69,7 +69,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
 
     batch_size = 50
     epsilon = 5
-    topk = int(numParams / 2)
+    topk = int(numParams / 10)
 
     list_of_models = []
 
@@ -96,8 +96,8 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
         delta = np.zeros((numClients, numParams))
         
         # Significant features filter
-        # sig_features_idx = np.argpartition(weights, -topk)[-topk:]
-        sig_features_idx = np.arange(numParams)
+        sig_features_idx = np.argpartition(weights, -topk)[-topk:]
+        # sig_features_idx = np.arange(numParams)
 
         for k in range(len(list_of_models)):
             delta[k, :] = list_of_models[k].privateFun(1, weights, batch_size)
@@ -115,8 +115,8 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
         summed_deltas = summed_deltas + delta
         
         # Use Foolsgold
-        # this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights)
-        this_delta = logistic_aggregator.average(delta)
+        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights)
+        # this_delta = logistic_aggregator.average(delta)
         
         weights = weights + this_delta
 
@@ -128,9 +128,9 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
     print("Done iterations!")
     print("Train error: %d", softmax_test.train_error(weights))
     print("Test error: %d", softmax_test.test_error(weights))
-    pdb.set_trace()
-    import sklearn.metrics.pairwise as smp
-    cs = smp.cosine_similarity(summed_deltas)
+    # pdb.set_trace()
+    # import sklearn.metrics.pairwise as smp
+    # cs = smp.cosine_similarity(summed_deltas)
     return weights
 
 
