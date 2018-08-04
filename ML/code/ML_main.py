@@ -59,12 +59,13 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
 
     batch_size = 50
     epsilon = 5
-    topk = int(numParams / 2)
+    memory_size = 0
 
     list_of_models = []
 
     for dataset in model_names:
-        list_of_models.append(softmax_model_obj.SoftMaxModel(dataset, epsilon, numClasses))
+        list_of_models.append(softmax_model_obj.SoftMaxModel(dataset, epsilon, 
+            numClasses))
 
     # Include the model that sends the ideal vector on each iteration
     if ideal_attack:
@@ -79,28 +80,64 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
     weights = np.random.rand(numParams) / 100.0
     train_progress = []
 
-    summed_deltas = np.zeros((numClients, numParams))
+    delta_memory = np.zeros((numClients, numParams, memory_size))
 
     for i in xrange(iterations):
 
         delta = np.zeros((numClients, numParams))
+        summed_deltas = np.zeros((numClients, numParams))
+
+        ##################################
+        # Use significant features filter or not
+        ##################################
+        topk = int(numParams / 2)
         
-        # Significant features filter
-        #sig_features_idx = np.argpartition(weights, -topk)[-topk:]
+        # Significant features filter, the top k biggest weights
+        # sig_features_idx = np.argpartition(weights, -topk)[-topk:]
         sig_features_idx = np.arange(numParams)
 
-        for k in range(len(list_of_models)):
-            delta[k, :] = list_of_models[k].privateFun(1, weights, batch_size)
+        ##################################
+        # Use annealing strategy or not
+        ##################################
+        if memory_size > 0:
 
-            # normalize delta
-            if np.linalg.norm(delta[k, :]) > 1:
-                delta[k, :] = delta[k, :] / np.linalg.norm(delta[k, :])
+            for k in range(len(list_of_models)):
+            
+                delta[k, :] = list_of_models[k].privateFun(1, weights,
+                   batch_size)
 
-        # Track the total vector from each individual client
-        summed_deltas = summed_deltas + delta
+                # normalize delta
+                if np.linalg.norm(delta[k, :]) > 1:
+                    delta[k, :] = delta[k, :] / np.linalg.norm(delta[k, :])
+
+                delta_memory[k, :, i % memory_size] = delta[k, :]
+
+            # Track the total vector from each individual client
+            summed_deltas = np.sum(delta_memory, axis=2)
+
+        else:
+
+            for k in range(len(list_of_models)):
+
+                delta[k, :] = list_of_models[k].privateFun(1, weights, batch_size)
+
+                # normalize delta
+                if np.linalg.norm(delta[k, :]) > 1:
+                    delta[k, :] = delta[k, :] / np.linalg.norm(delta[k, :])
+
+            # Track the total vector from each individual client
+            summed_deltas = summed_deltas + delta
         
-        # Use Foolsgold
-        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i)
+        ##################################
+        # Use FoolsGold or something else
+        ##################################
+
+        # Use Foolsgold (can optionally clip gradients via Krum)
+        this_delta = logistic_aggregator.foolsgold(delta,
+           summed_deltas, sig_features_idx, i, clip=1)
+        
+        # Krum
+        # this_delta = logistic_aggregator.krum(delta, clip=1)
         
         weights = weights + this_delta
 
@@ -144,10 +181,11 @@ if __name__ == "__main__":
 
     models = []
 
+    ##################################
+    # Add the models; can try a little more IID
+    ##################################
     for i in range(numClasses):
-        # Try a little more IID
-        models.append(dataPath + str(i))# + str((i + 1) % 10) + str((i
-        # + 2) % 10))
+        models.append(dataPath + str(i))
 
     for attack in argv[2:]:
         attack_delim = attack.split("_")
@@ -159,7 +197,7 @@ if __name__ == "__main__":
 
     softmax_test = softmax_model_test.SoftMaxModelTest(dataset, numClasses, numFeatures)
     weights = non_iid(models, numClasses, numParams, softmax_test, iterations,
-        ideal_attack=True)
+        ideal_attack=False)
 
     for attack in argv[2:]:
         attack_delim = attack.split("_")

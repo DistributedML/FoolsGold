@@ -38,7 +38,7 @@ def importanceFeatureMapGlobal(model):
 '''
 Aggregates history of gradient directions
 '''
-def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model):
+def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, clip=0):
 
     # Take all the features of sig_features_idx for each client
     sig_filtered_deltas = np.take(summed_deltas, sig_features_idx, axis=1)
@@ -72,13 +72,14 @@ def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model):
     wv[(np.isinf(wv) + wv > 1)] = 1
     wv[(wv < 0)] = 0
 
-    # Augment onto krum
-    clip = 1
-    scores = get_krum_scores(this_delta, n - clip)
-    bad_idx = np.argpartition(scores, n - clip)[(n - clip):n]
+    if clip != 0:
 
-    # Filter out the highest krum scores
-    wv[bad_idx] = 0
+        # Augment onto krum
+        scores = get_krum_scores(this_delta, n - clip)
+        bad_idx = np.argpartition(scores, n - clip)[(n - clip):n]
+
+        # Filter out the highest krum scores
+        wv[bad_idx] = 0
 
     # Apply the weight vector on this delta
     delta = np.reshape(this_delta, (n, d))

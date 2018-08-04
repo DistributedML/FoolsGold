@@ -164,7 +164,7 @@ class SoftMaxModelEvil(SoftMaxModel):
                 idx = np.random.choice(self.X.shape[0], batch_size, replace=False)
             else:
                 # Just take the full range
-                idx = np.arange(self.X.shape[0])
+                idx = range(self.X.shape[0])
 
             f, g = self.funObj(self.weights, self.X[idx, :], self.y[idx],
                batch_size)
