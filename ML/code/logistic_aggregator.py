@@ -30,7 +30,7 @@ def get_cos_similarity(full_deltas):
 '''
 Aggregates history of gradient directions
 '''
-def foolsgold(this_delta, summed_deltas, sig_features_idx, iter):
+def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, clip=0):
 
     # Take all the features of sig_features_idx for each client
     sig_filtered_deltas = np.take(summed_deltas, sig_features_idx, axis=1)
@@ -58,16 +58,14 @@ def foolsgold(this_delta, summed_deltas, sig_features_idx, iter):
     wv[(np.isinf(wv) + wv > 1)] = 1
     wv[(wv < 0)] = 0
 
-    # Augment onto krum
-    clip = 1
-    scores = get_krum_scores(this_delta, n - clip)
-    bad_idx = np.argpartition(scores, n - clip)[(n - clip):n]
+    if clip != 0:
 
-    if iter == 1000:
-        pdb.set_trace()
+        # Augment onto krum
+        scores = get_krum_scores(this_delta, n - clip)
+        bad_idx = np.argpartition(scores, n - clip)[(n - clip):n]
 
-    # Filter out the highest krum scores
-    wv[bad_idx] = 0
+        # Filter out the highest krum scores
+        wv[bad_idx] = 0
 
     # Apply the weight vector on this delta
     delta = np.reshape(this_delta, (n, d))
