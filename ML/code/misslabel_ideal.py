@@ -12,7 +12,8 @@ Takes input
 
 def main(argv):
     dataset = argv[0]
-    fp = "data/" + dataset + "/" + dataset + "_train.npy"
+    dir = "data/" + dataset + "/"
+    fp = dir + dataset + "_train.npy"
     
     data = np.load(os.path.join('../ML', fp))
     data[:, -1][data[:, -1] == int(argv[1])] = int(argv[2])
