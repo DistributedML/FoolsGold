@@ -69,7 +69,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
 
     batch_size = 50
     epsilon = 5
-    topk = int(numParams / 2)
+    topk = int(numParams / 10)
 
     list_of_models = []
 
@@ -96,8 +96,8 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
         delta = np.zeros((numClients, numParams))
         
         # Significant features filter
-        # sig_features_idx = np.argpartition(weights, -topk)[-topk:]
-        sig_features_idx = np.arange(numParams)
+        sig_features_idx = np.argpartition(weights, -topk)[-topk:]
+        # sig_features_idx = np.arange(numParams)
 
         for k in range(len(list_of_models)):
             delta[k, :] = list_of_models[k].privateFun(1, weights, batch_size)

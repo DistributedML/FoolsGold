@@ -30,6 +30,19 @@ def main():
         idx = np.where(traindata[:, 41] == i)[0]
         print("Label " + str(i) + " has " + str(len(idx)))
         labeldata = traindata[idx]
+
+        nn = labeldata.shape[0]
+
+        if nn > 20:
+            np.save("kddcup" + str(i) + 'a', labeldata[0:int(nn/3)])
+            np.save("kddcup" + str(i) + 'b', labeldata[int(nn/3):int(nn/1.5)])
+            np.save("kddcup" + str(i) + 'c', labeldata[int(nn/1.5):nn])
+        
+        else:
+            np.save("kddcup" + str(i) + 'a', labeldata)
+            np.save("kddcup" + str(i) + 'b', labeldata)
+            np.save("kddcup" + str(i) + 'c', labeldata)
+
         np.save("kddcup" + str(i), labeldata)
 
         ovridx = np.where(data[:, 41] == i)[0]
@@ -38,13 +51,9 @@ def main():
     np.save("kddcup_train", traindata)
     np.save("kddcup_test", testdata)
 
-    pdb.set_trace()
-
     # Make a bad dataset, push class 0 to 11 (normal)
     baddata = traindata[np.where(traindata[:, 41] == 0)[0]]
     baddata[:, -1] = 11
-
-    pdb.set_trace()
 
     np.save("kddcup_bad_0_11", baddata)
 
