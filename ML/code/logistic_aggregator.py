@@ -35,16 +35,34 @@ def importanceFeatureMapGlobal(model):
     # return np.repeat(aggregate, 10)
     return np.abs(model) / np.sum(np.abs(model))
 
+def importanceFeatureMapLocal(model):
+    M = model.copy()
+    M = np.reshape(M, (10, 784))
+    
+    # #Take abs?
+    # M = np.abs(M)
+
+    for i in range(10):
+        if (M[i].sum() == 0):
+            pdb.set_trace()
+        M[i] = np.abs(M[i] - M[i].mean())
+        
+        M[i] = M[i] / M[i].sum()
+    
+    return M.flatten()
+
 '''
 Aggregates history of gradient directions
 '''
 def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, clip=0):
 
-    # Take all the features of sig_features_idx for each client
+    # Take all the features of sig_features_idx for each clients
+
     sig_filtered_deltas = np.take(summed_deltas, sig_features_idx, axis=1)
 
     # smooth version of importance features
-    importantFeatures = importanceFeatureMapGlobal(model)
+    importantFeatures = importanceFeatureMapLocal(model)
+
     for i in range(n):
         sig_filtered_deltas[i] = np.multiply(sig_filtered_deltas[i], importantFeatures)
 
@@ -71,6 +89,9 @@ def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, clip=0):
     wv = (np.log(wv / (1 - wv)) + 0.5)
     wv[(np.isinf(wv) + wv > 1)] = 1
     wv[(wv < 0)] = 0
+
+    if iter % 2000 == 0:
+        pdb.set_trace()
 
     if clip != 0:
 
