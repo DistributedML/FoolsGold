@@ -133,8 +133,10 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
         ##################################
 
         # Use Foolsgold (can optionally clip gradients via Krum)
-        this_delta = logistic_aggregator.foolsgold(delta,
-           summed_deltas, sig_features_idx, i, weights, clip=1)
+        # this_delta = logistic_aggregator.foolsgold(delta,
+        #    summed_deltas, sig_features_idx, i, clip=1)
+
+        this_delta = logistic_aggregator.average(delta)
         
         # Krum
         # this_delta = logistic_aggregator.krum(delta, clip=1)
@@ -184,8 +186,11 @@ if __name__ == "__main__":
     ##################################
     # Add the models; can try a little more IID
     ##################################
-    for i in range(numClasses):
-        models.append(dataPath + str(i))
+
+    # Multiply number of honest clients
+    for nHonest in range(3):
+        for i in range(numClasses):
+            models.append(dataPath + str(i))
 
     for attack in argv[2:]:
         attack_delim = attack.split("_")
