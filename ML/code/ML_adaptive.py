@@ -1,13 +1,13 @@
 from __future__ import division
 from numpy.linalg import norm
 import matplotlib.pyplot as plt
-
+import sklearn.metrics.pairwise as smp
 import logistic_aggregator
 import softmax_model
 import softmax_model_test
 import softmax_model_obj
 import poisoning_compare
-
+import math
 import numpy as np
 import utils
 
@@ -63,8 +63,23 @@ def rescale(x, a, b):
 def cos(vecA, vecB):
     return np.dot(vecA, vecB)/(np.linalg.norm(vecA) * np.linalg.norm(vecB))
 
+def getOrthogonalNoise(numSybils, numParams):
+    numOrthoBasis = int(math.ceil(numSybils / 2.0))
+
+    q, r = np.linalg.qr(np.random.rand(numParams, numOrthoBasis))
+    q = q.T
+    
+    noiseGrad = np.zeros((numSybils, numParams))
+    noiseGrad[0:numOrthoBasis] = q
+    for i in range(numSybils - numOrthoBasis):
+        noiseGrad[numOrthoBasis + i] = - q[i]
+    
+    return noiseGrad
+
+
+
 # Variant of non_iid, where noise is added to poisoner_indices
-def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
+def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000, numSybils=2,
     ideal_attack=False, poisoner_indices = []):
 
     batch_size = 50
@@ -91,6 +106,10 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
 
     summed_deltas = np.zeros((numClients, numParams))
 
+    #### Cosine similarity for adversaries ####
+    sybil_deltas = summed_deltas[10:10+numSybils]
+
+
     for i in xrange(iterations):
 
         delta = np.zeros((numClients, numParams))
@@ -107,15 +126,31 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
                 delta[k, :] = delta[k, :] / np.linalg.norm(delta[k, :])
 
         # Add adversarial noise
-        noisevec = rescale(np.random.rand(numParams), np.min(delta), np.max(delta))
-        delta[poisoner_indices[0], :] = delta[poisoner_indices[0], :] + noisevec
-        delta[poisoner_indices[1], :] = delta[poisoner_indices[1], :] - noisevec
+        # noisevec = rescale(np.random.rand(numParams), np.min(delta), np.max(delta))
+        # delta[poisoner_indices[0], :] = delta[poisoner_indices[0], :] + noisevec
+        # delta[poisoner_indices[1], :] = delta[poisoner_indices[1], :] - noisevec
+
+        ### Adaptive poisoning !! use even number sybils ###
+        sybil_deltas = summed_deltas[10:10+numSybils].copy()
+        sybil_deltas = sybil_deltas + delta[10:10+numSybils]
+        sybil_cs = smp.cosine_similarity(sybil_deltas) - np.eye(numSybils)
+        sybil_cs = np.max(sybil_cs, axis=1)
+        max_similarity = 0.1
         
+        if np.any(sybil_cs > max_similarity):
+            pdb.set_trace()
+            delta[10:10+numSybils] = getOrthogonalNoise(numSybils, numParams)
+        # delta[10:10+numSybils] = getOrthogonalNoise(numSybils, numParams) 
+        # pdb.set_trace()
+        # pdb:: np.max(smp.cosine_similarity(delta[10:10+numSybils]) - np.eye(numSybils), axis=1)
+        ##########################
+        
+
         # Track the total vector from each individual client
         summed_deltas = summed_deltas + delta
         
         # Use Foolsgold
-        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights)
+        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, importance=False)
         # this_delta = logistic_aggregator.average(delta)
         
         weights = weights + this_delta
@@ -179,7 +214,7 @@ if __name__ == "__main__":
     softmax_test = softmax_model_test.SoftMaxModelTest(dataset, numClasses, numFeatures)
     # Hard code poisoners in a 2_x_x attack
 
-    weights = non_iid(models, numClasses, numParams, softmax_test, iterations, ideal_attack=False, poisoner_indices = [10, 11])
+    weights = non_iid(models, numClasses, numParams, softmax_test, iterations, int(sybil_set_size), ideal_attack=False, poisoner_indices=[10,11])
 
     for attack in argv[2:]:
         attack_delim = attack.split("_")
