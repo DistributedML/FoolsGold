@@ -108,8 +108,8 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
 
         # Add adversarial noise
         noisevec = rescale(np.random.rand(numParams), np.min(delta), np.max(delta))
-        delta[poisoner_indices[0], :] = delta[poisoner_indices[0], :] + 100*noisevec
-        delta[poisoner_indices[1], :] = delta[poisoner_indices[1], :] - 100*noisevec
+        delta[poisoner_indices[0], :] = delta[poisoner_indices[0], :] + noisevec
+        delta[poisoner_indices[1], :] = delta[poisoner_indices[1], :] - noisevec
         
         # Track the total vector from each individual client
         summed_deltas = summed_deltas + delta

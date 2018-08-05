@@ -3,7 +3,7 @@ import numpy as np
 import pdb
 import falconn
 import sklearn.metrics.pairwise as smp
-
+import matplotlib.pyplot as plt
 n = 0
 d = 0
 hit_matrix = np.zeros(1)
@@ -48,6 +48,11 @@ def importanceFeatureMapLocal(model):
         M[i] = np.abs(M[i] - M[i].mean())
         
         M[i] = M[i] / M[i].sum()
+
+        # Top k of 784
+        topk = 100
+        sig_features_idx = np.argpartition(M[i], -topk)[0:-topk]
+        M[i][sig_features_idx] = 0
     
     return M.flatten()
 
@@ -57,12 +62,12 @@ Aggregates history of gradient directions
 def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, clip=0):
 
     # Take all the features of sig_features_idx for each clients
-
-    sig_filtered_deltas = np.take(summed_deltas, sig_features_idx, axis=1)
+    sd = summed_deltas.copy()
+    sig_filtered_deltas = np.take(sd, sig_features_idx, axis=1)
 
     # smooth version of importance features
     importantFeatures = importanceFeatureMapLocal(model)
-
+    
     for i in range(n):
         sig_filtered_deltas[i] = np.multiply(sig_filtered_deltas[i], importantFeatures)
 
@@ -90,8 +95,11 @@ def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, clip=0):
     wv[(np.isinf(wv) + wv > 1)] = 1
     wv[(wv < 0)] = 0
 
-    if iter % 2000 == 0:
+    if iter % 2000 == 0 and iter != 0:
+        # plt.imshow( np.reshape( np.reshape( importantFeatures, (10, 784))[1], (28,28)), cmap='gray'); plt.show()
+        # plt.imshow( np.reshape( np.reshape( sig_filtered_deltas[11], (10, 784))[1], (28,28)), cmap='gray'); plt.show()
         pdb.set_trace()
+        
 
     if clip != 0:
 
