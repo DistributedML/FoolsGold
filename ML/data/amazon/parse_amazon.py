@@ -15,28 +15,28 @@ def slice_iid():
         sfflidx = np.random.permutation(data.shape[0])
         data = data[sfflidx]
 
-        # testidx = int(data.shape[0] * 0.7)
+        testidx = int(data.shape[0] * 0.7)
 
-        # testdata = data[testidx:, ]
-        # traindata = data[0:testidx, ]
+        testdata = data[testidx:, ]
+        traindata = data[0:testidx, ]
 
         # standardize each column
-        data[:, 0:10000], _, _ = standardize_cols(data[:, 0:10000])
-        # testdata[:, 0:10000], _, _ = standardize_cols(testdata[:, 0:10000])
+        traindata[:, 0:10000], _, _ = standardize_cols(traindata[:, 0:10000])
+        testdata[:, 0:10000], _, _ = standardize_cols(testdata[:, 0:10000])
 
-        for k in range(int(np.max(data[:, 10000]) + 1)):
+        for k in range(int(np.max(traindata[:, 10000]) + 1)):
 
             filesuf = ""
-            idx_bool = np.full(data.shape[0], False)
+            idx_bool = np.full(traindata.shape[0], False)
             
             for i in range(numclassesper):
-                idx_bool += data[:, 10000] == ((k + i) % 50)
+                idx_bool += traindata[:, 10000] == ((k + i) % 50)
                 filesuf += "_" + str((k + i) % 50)
             
             idx = np.where(idx_bool)[0]
             
             print("Label " + filesuf + " has " + str(len(idx)))
-            labeldata = data[idx]
+            labeldata = traindata[idx]
 
             np.save("amazon" + filesuf, labeldata)
 
@@ -49,25 +49,26 @@ def main():
     sfflidx = np.random.permutation(data.shape[0])
     data = data[sfflidx]
 
-    # testidx = int(data.shape[0] * 0.7)
+    testidx = int(data.shape[0] * 0.7)
 
-    # testdata = data[testidx:, ]
-    # traindata = data[0:testidx, ]
+    testdata = data[testidx:, ]
+    traindata = data[0:testidx, ]
 
     # standardize each column
-    data[:, 0:10000], _, _ = standardize_cols(data[:, 0:10000])
-    # testdata[:, 0:10000], _, _ = standardize_cols(testdata[:, 0:10000])
+    traindata[:, 0:10000], _, _ = standardize_cols(traindata[:, 0:10000])
+    testdata[:, 0:10000], _, _ = standardize_cols(testdata[:, 0:10000])
 
-    for i in range(int(np.max(data[:, 10000]) + 1)):
+    for i in range(int(np.max(traindata[:, 10000]) + 1)):
 
-        idx = np.where(data[:, 10000] == i)[0]
+        idx = np.where(traindata[:, 10000] == i)[0]
         print("Label " + str(i) + " has " + str(len(idx)))
         
-        labeldata = data[idx]
+        labeldata = traindata[idx]
 
         np.save("amazon_" + str(i), labeldata)
 
-    np.save("amazon_all", data)
+    np.save("amazon_train", traindata)
+    np.save("amazon_test", testdata)
 
 
 def load_raw():

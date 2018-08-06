@@ -141,7 +141,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
         
         weights = weights + this_delta
 
-        if i % 100 == 0:
+        if i % 10 == 0:
             error = softmax_test.train_error(weights)
             print("Train error: %.10f" % error)
             train_progress.append(error)
