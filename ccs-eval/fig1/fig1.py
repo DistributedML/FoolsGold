@@ -6,7 +6,7 @@ import pdb
 
 fig, ax = plt.subplots(figsize=(10, 5))
 
-df = pd.read_csv("perf.csv", header=None)
+df = pd.read_csv("fig1results_fed.csv", header=None)
 data1 = df.values[:, 3]
 
 df = pd.read_csv("fig1results_krum_niid.csv", header=None)

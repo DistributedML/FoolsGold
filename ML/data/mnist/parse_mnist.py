@@ -92,22 +92,14 @@ def slice_for_tm():
 
     for k in range(10):
 
-        idx = np.where(ytrain == k)[0]
+        idx = np.where((ytrain == k))[0]
 
         class_slice = Xtrain[idx]
         data_slice = np.hstack((class_slice, ytrain[idx][:, None]))
 
         print("slice " + str(k) + " is shape " + str(data_slice.shape))
 
-        nk = data_slice.shape[0]
-
-        data_slice1 = data_slice[0 : int(nk / 3)]
-        data_slice2 = data_slice[int(nk / 3) : int(nk / 1.5)]
-        data_slice3 = data_slice[int(nk / 1.5) : nk]
-
-        np.save("mnist" + str(k) + "a", data_slice1)
-        np.save("mnist" + str(k) + "b", data_slice2)
-        np.save("mnist" + str(k) + "c", data_slice3)
+        np.save("mnist" + str(k), data_slice)
 
     train_slice = np.hstack((Xtrain, np.reshape(ytrain, (len(ytrain), 1))))
     np.save("mnist_train", train_slice)
@@ -116,6 +108,60 @@ def slice_for_tm():
     np.save("mnist_test", test_slice)
 
     pdb.set_trace()
+
+
+def slice_for_iid(nclassesper):
+
+    mndata = MNIST('.')
+
+    images, labels = mndata.load_training()
+    images_test, labels_test = mndata.load_testing()
+
+    n = len(images)
+    d = len(images[0])
+    t = len(images_test)
+
+    Xtrain = np.zeros((n, d))
+    Xtest = np.zeros((t, d))
+
+    ytrain = np.asarray(labels)
+    ytest = np.asarray(labels_test)
+
+    for i in range(n):
+        Xtrain[i, :] = np.asarray(images[i])
+
+    for q in range(t):
+        Xtest[q, :] = np.asarray(images_test[q])
+
+    # standardize each column
+    print("Standardize columns")
+    Xtrain = Xtrain / 100.0
+    # Xtrain, _, _ = standardize_cols(Xtrain)
+    # Xtest, _, _ = standardize_cols(Xtest)
+
+    for k in range(10):
+
+        filesuf = ""
+        idx_bool = np.full(len(ytrain), False)
+        for i in range(nclassesper):
+            idx_bool += (ytrain == (k + i) % 10)
+            filesuf += str((k + i) % 10)
+
+        idx = np.where(idx_bool)[0]
+
+        class_slice = Xtrain[idx]
+        data_slice = np.hstack((class_slice, ytrain[idx][:, None]))
+
+        print("slice " + filesuf + " is shape " + str
+            (data_slice.shape))
+
+        np.save("mnist" + filesuf, data_slice)
+
+    train_slice = np.hstack((Xtrain, np.reshape(ytrain, (len(ytrain), 1))))
+    np.save("mnist_train", train_slice)
+
+    test_slice = np.hstack((Xtest, np.reshape(ytest, (len(ytest), 1))))
+    np.save("mnist_test", test_slice)
 
 
 def show_digit(image):
@@ -140,4 +186,5 @@ def standardize_cols(X, mu=None, sigma=None):
 
 if __name__ == "__main__":
 
-    slice_for_tm()
+    for i in range(1, 10):
+        slice_for_iid(i)
