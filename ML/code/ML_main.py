@@ -57,7 +57,7 @@ def basic_conv(dataset, num_params, softmax_test, iterations=3000):
 def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
     ideal_attack=False):
 
-    batch_size = 10
+    batch_size = 50
     epsilon = 5
     memory_size = 0
 
@@ -141,7 +141,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
         
         weights = weights + this_delta
 
-        if i % 10 == 0:
+        if i % 100 == 0:
             error = softmax_test.train_error(weights)
             print("Train error: %.10f" % error)
             train_progress.append(error)
@@ -185,11 +185,15 @@ if __name__ == "__main__":
         row = 0
 
         # for kdd
-        # toiter = np.concatenate((np.arange(1, 2), 
-        #    (np.arange(0.1, 1, 0.1) * 23).astype(int)))
+        # toiter = np.arange(1, 11)
+
+        # for kdd
+        toiter = np.concatenate((np.arange(1, 2), (np.arange(0.1, 1,
+            0.1) * 23).astype(int))) 
 
         # for amazone
-        toiter = np.concatenate((np.arange(1, 2), np.arange(5, 55, 5)))
+        # toiter = np.concatenate((np.arange(1, 2), np.arange(5, 55,
+        # 5)))
 
         for ncp in toiter:
 
@@ -200,7 +204,7 @@ if __name__ == "__main__":
             ##################################
             for k in range(numClasses):
                 
-                if ncp != 50:
+                if ncp != 23:
                 
                     datasuf = ""
                     for i in range(ncp):
@@ -235,7 +239,7 @@ if __name__ == "__main__":
 
             row += 1
 
-        np.savetxt("amazoniid" + str(run) + ".csv", all_scores,
+        np.savetxt("kddiid" + str(run) + ".csv", all_scores,
            fmt='%.5f',
            delimiter=',')
 
