@@ -73,7 +73,6 @@ def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, importan
             sig_filtered_deltas[i] = np.multiply(sig_filtered_deltas[i], importantFeatures)
 
     cs = smp.cosine_similarity(sig_filtered_deltas) - np.eye(n)
-
     # Pardoning: reweight by the max value seen
     maxcs = np.max(cs, axis=1)
     for i in range(n):
@@ -100,7 +99,7 @@ def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, importan
         # plt.imshow( np.reshape( np.reshape( importantFeatures, (10, 784))[1], (28,28)), cmap='gray'); plt.show()
         # plt.imshow( np.reshape( np.reshape( sig_filtered_deltas[11], (10, 784))[1], (28,28)), cmap='gray'); plt.show()
         print wv
-        pdb.set_trace()
+
         
 
     if clip != 0:

@@ -63,18 +63,27 @@ def rescale(x, a, b):
 def cos(vecA, vecB):
     return np.dot(vecA, vecB)/(np.linalg.norm(vecA) * np.linalg.norm(vecB))
 
+# def getOrthogonalNoise(numSybils, numParams):
+#     numOrthoBasis = int(math.ceil(numSybils / 2.0))
+
+#     q, r = np.linalg.qr(np.random.rand(numParams, numOrthoBasis))
+#     q = q.T
+    
+#     noiseGrad = np.zeros((numSybils, numParams))
+#     noiseGrad[0:numOrthoBasis] = q
+#     for i in range(numSybils - numOrthoBasis):
+#         noiseGrad[numOrthoBasis + i] = - q[i]
+    
+#     return noiseGrad
+
 def getOrthogonalNoise(numSybils, numParams):
-    numOrthoBasis = int(math.ceil(numSybils / 2.0))
+    numOrthoBasis = numSybils
 
     q, r = np.linalg.qr(np.random.rand(numParams, numOrthoBasis))
-    q = q.T
-    
-    noiseGrad = np.zeros((numSybils, numParams))
-    noiseGrad[0:numOrthoBasis] = q
-    for i in range(numSybils - numOrthoBasis):
-        noiseGrad[numOrthoBasis + i] = - q[i]
-    
-    return noiseGrad
+    q.T[:,0:784] = 0
+    q.T[:,1568:5488] = 0
+    q.T[:,6272:] = 0
+    return q.T
 
 
 
@@ -107,7 +116,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000, n
     summed_deltas = np.zeros((numClients, numParams))
 
     #### Cosine similarity for adversaries ####
-    sybil_deltas = summed_deltas[10:10+numSybils]
+    sybil_noise = getOrthogonalNoise(numSybils, numParams)
 
 
     for i in xrange(iterations):
@@ -138,8 +147,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000, n
         max_similarity = 0.1
         
         if np.any(sybil_cs > max_similarity):
-            pdb.set_trace()
-            delta[10:10+numSybils] = getOrthogonalNoise(numSybils, numParams)
+            delta[10:10+numSybils] = sybil_noise
         # delta[10:10+numSybils] = getOrthogonalNoise(numSybils, numParams) 
         # pdb.set_trace()
         # pdb:: np.max(smp.cosine_similarity(delta[10:10+numSybils]) - np.eye(numSybils), axis=1)
@@ -150,7 +158,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000, n
         summed_deltas = summed_deltas + delta
         
         # Use Foolsgold
-        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, importance=False)
+        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, importance=True)
         # this_delta = logistic_aggregator.average(delta)
         
         weights = weights + this_delta
