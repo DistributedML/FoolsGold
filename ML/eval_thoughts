@@ -105,3 +105,57 @@ Target Training Accuracy on source label 1s: 0.614357757342035
 Target Training Accuracy on target label 7s: 0.8994413407821229
 Target Attack Rate (1 to 7): 0.3525660041530703
 
+
+############ Noisy Poisoning ############
+10*noisevec
+('Train error: %d', '0.21043333333333333')
+('Test error: %d', '0.2061')
+Accuracy overall: 0.7895666666666666
+Accuracy on other digits: 0.8881670359382628
+Target Training Accuracy on source label 1s: 0.010679323642835954
+Target Training Accuracy on target label 7s: 0.8905027932960894
+Target Attack Rate (1 to 7): 0.9606941560367843
+
+softdefense
+('Train error: %d', '0.2121')
+('Test error: %d', '0.2097')
+Accuracy overall: 0.7879
+Accuracy on other digits: 0.8876412933268242
+Target Training Accuracy on source label 1s: 0.0
+Target Training Accuracy on target label 7s: 0.9393455706304868
+Target Attack Rate (1 to 7): 0.9817561554434886
+
+
+
+########### Adative ##########
+
+16_1_7 no importance
+0.2: 0.842
+0.3: 0.88
+0.4: 0.89966
+
+8_1_7
+0.2:  0.724333333333
+0.3:  0.795
+0.4: 0.822333333333 0.831333333333 0.829333333333
+
+2_1_7
+0.2: 0.3693
+0.3: 0.427
+0.4: 0.449
+
+
+importance
+
+8_1_7
+0.2: 0.727 0.738666666667
+0.3: 0.7096 
+D? 0.4: 0.451 0.446 0.650333333333 0.455
+
+
+importance prop 0.1
+
+8_1_7
+0.2: 0.556333333333 0.583333333333 0.323333333333!
+d 0.3: 0.392666666667 0.398
+0.4: 0.451333333333

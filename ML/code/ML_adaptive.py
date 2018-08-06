@@ -85,7 +85,15 @@ def getOrthogonalNoise(numSybils, numParams):
     q.T[:,6272:] = 0
     return q.T
 
+def rescaleOrthogonalNoise(noise, deltas):
+    # maximum norm of organic gradients
+    maxNorm = np.max(np.linalg.norm(deltas, axis=1))
+    n,d = noise.shape
 
+    for i in range(n):
+        noise[i] = noise[i] / (np.linalg.norm(noise[i]) / maxNorm)
+
+    return noise
 
 # Variant of non_iid, where noise is added to poisoner_indices
 def non_iid(model_names, numClasses, numParams, softmax_test, topk_prop, iterations=3000, numSybils=2,
@@ -118,7 +126,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, topk_prop, iterati
     #### Cosine similarity for adversaries ####
     sybil_noise = getOrthogonalNoise(numSybils, numParams)
 
-
+    numPoisonContribution = 0
     for i in xrange(iterations):
 
         delta = np.zeros((numClients, numParams))
@@ -146,11 +154,12 @@ def non_iid(model_names, numClasses, numParams, softmax_test, topk_prop, iterati
             sybil_deltas = sybil_deltas + delta[10:10+numSybils]
             sybil_cs = smp.cosine_similarity(sybil_deltas) - np.eye(numSybils)
             sybil_cs = np.max(sybil_cs, axis=1)
-            max_similarity = 0.4
+            max_similarity = 0.6
             
             if np.any(sybil_cs > max_similarity):
-                delta[10:10+numSybils] = sybil_noise
-
+                delta[10:10+numSybils] = rescaleOrthogonalNoise(sybil_noise, delta)
+            else:
+                numPoisonContribution += 1
 
         # delta[10:10+numSybils] = getOrthogonalNoise(numSybils, numParams) 
         # pdb.set_trace()
@@ -162,7 +171,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, topk_prop, iterati
         summed_deltas = summed_deltas + delta
         
         # Use Foolsgold
-        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, 1.0, importance=True, importanceHard=False)
+        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, 0.05, importance=False, importanceHard=False)
         # this_delta = logistic_aggregator.average(delta)
         
         weights = weights + this_delta
@@ -171,7 +180,8 @@ def non_iid(model_names, numClasses, numParams, softmax_test, topk_prop, iterati
             error = softmax_test.train_error(weights)
             print("Train error: %.10f" % error)
             train_progress.append(error)
-
+    print numPoisonContribution / 3000.0
+    pdb.set_trace()
     print("Done iterations!")
     print("Train error: %d", softmax_test.train_error(weights))
     print("Test error: %d", softmax_test.test_error(weights))
