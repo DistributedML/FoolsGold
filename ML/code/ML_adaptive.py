@@ -106,7 +106,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000, n
            "_bad_ideal_4_9", 1, numClasses))
 
     numClients = len(list_of_models)
-    logistic_aggregator.init(numClients, numParams)
+    logistic_aggregator.init(numClients, numParams, numClasses)
 
     print("Start training across " + str(numClients) + " clients.")
 
@@ -140,14 +140,18 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000, n
         # delta[poisoner_indices[1], :] = delta[poisoner_indices[1], :] - noisevec
 
         ### Adaptive poisoning !! use even number sybils ###
-        sybil_deltas = summed_deltas[10:10+numSybils].copy()
-        sybil_deltas = sybil_deltas + delta[10:10+numSybils]
-        sybil_cs = smp.cosine_similarity(sybil_deltas) - np.eye(numSybils)
-        sybil_cs = np.max(sybil_cs, axis=1)
-        max_similarity = 0.1
-        
-        if np.any(sybil_cs > max_similarity):
-            delta[10:10+numSybils] = sybil_noise
+        adaptive = True
+        if adaptive:
+            sybil_deltas = summed_deltas[10:10+numSybils].copy()
+            sybil_deltas = sybil_deltas + delta[10:10+numSybils]
+            sybil_cs = smp.cosine_similarity(sybil_deltas) - np.eye(numSybils)
+            sybil_cs = np.max(sybil_cs, axis=1)
+            max_similarity = 0.1
+            
+            if np.any(sybil_cs > max_similarity):
+                delta[10:10+numSybils] = sybil_noise
+
+
         # delta[10:10+numSybils] = getOrthogonalNoise(numSybils, numParams) 
         # pdb.set_trace()
         # pdb:: np.max(smp.cosine_similarity(delta[10:10+numSybils]) - np.eye(numSybils), axis=1)
@@ -158,7 +162,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000, n
         summed_deltas = summed_deltas + delta
         
         # Use Foolsgold
-        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, importance=True)
+        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, topk_prop = 0.1, importance=True)
         # this_delta = logistic_aggregator.average(delta)
         
         weights = weights + this_delta

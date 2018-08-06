@@ -6,11 +6,12 @@ import sklearn.metrics.pairwise as smp
 import matplotlib.pyplot as plt
 n = 0
 d = 0
+n_classes = 0
 hit_matrix = np.zeros(1)
 it = 0
 
 
-def init(num_clients, num_features):
+def init(num_clients, num_features, num_classes):
 
     global d
     d = num_features
@@ -18,6 +19,8 @@ def init(num_clients, num_features):
     global n
     n = num_clients
 
+    global n_classes
+    n_classes = num_classes
 
 '''
 Returns the pairwise cosine similarity of client gradients
@@ -35,14 +38,16 @@ def importanceFeatureMapGlobal(model):
     # return np.repeat(aggregate, 10)
     return np.abs(model) / np.sum(np.abs(model))
 
-def importanceFeatureMapLocal(model):
+def importanceFeatureMapLocal(model, topk_prop):
+    class_d = int(d / n_classes)
+
     M = model.copy()
-    M = np.reshape(M, (10, 784))
+    M = np.reshape(M, (n_classes, class_d))
     
     # #Take abs?
     # M = np.abs(M)
 
-    for i in range(10):
+    for i in range(n_classes):
         if (M[i].sum() == 0):
             pdb.set_trace()
         M[i] = np.abs(M[i] - M[i].mean())
@@ -50,7 +55,7 @@ def importanceFeatureMapLocal(model):
         M[i] = M[i] / M[i].sum()
 
         # Top k of 784
-        topk = 100
+        topk = int(class_d * topk_prop)
         sig_features_idx = np.argpartition(M[i], -topk)[0:-topk]
         M[i][sig_features_idx] = 0
     
@@ -59,7 +64,7 @@ def importanceFeatureMapLocal(model):
 '''
 Aggregates history of gradient directions
 '''
-def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, importance=False, clip=0):
+def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, topk_prop, importance=False, clip=0):
 
     # Take all the features of sig_features_idx for each clients
     sd = summed_deltas.copy()
@@ -67,7 +72,7 @@ def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, importan
 
     if importance:
         # smooth version of importance features
-        importantFeatures = importanceFeatureMapLocal(model)
+        importantFeatures = importanceFeatureMapLocal(model, topk_prop)
         
         for i in range(n):
             sig_filtered_deltas[i] = np.multiply(sig_filtered_deltas[i], importantFeatures)
@@ -94,14 +99,7 @@ def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, importan
     wv = (np.log(wv / (1 - wv)) + 0.5)
     wv[(np.isinf(wv) + wv > 1)] = 1
     wv[(wv < 0)] = 0
-
-    if iter % 100 == 0 and iter != 0:
-        # plt.imshow( np.reshape( np.reshape( importantFeatures, (10, 784))[1], (28,28)), cmap='gray'); plt.show()
-        # plt.imshow( np.reshape( np.reshape( sig_filtered_deltas[11], (10, 784))[1], (28,28)), cmap='gray'); plt.show()
-        print wv
-
-        
-
+     
     if clip != 0:
 
         # Augment onto krum
