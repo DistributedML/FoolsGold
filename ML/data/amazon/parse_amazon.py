@@ -3,6 +3,43 @@ import pandas as pd
 import arff
 import pdb
 
+def slice_iid():
+
+    data = np.load('amazon.npy')
+
+    for numclassesper in np.arange(5, 50, 5):
+
+        print("Slicing up for " + str(numclassesper))
+
+        # Shuffle the data
+        sfflidx = np.random.permutation(data.shape[0])
+        data = data[sfflidx]
+
+        # testidx = int(data.shape[0] * 0.7)
+
+        # testdata = data[testidx:, ]
+        # traindata = data[0:testidx, ]
+
+        # standardize each column
+        data[:, 0:10000], _, _ = standardize_cols(data[:, 0:10000])
+        # testdata[:, 0:10000], _, _ = standardize_cols(testdata[:, 0:10000])
+
+        for k in range(int(np.max(data[:, 10000]) + 1)):
+
+            filesuf = ""
+            idx_bool = np.full(data.shape[0], False)
+            
+            for i in range(numclassesper):
+                idx_bool += data[:, 10000] == ((k + i) % 50)
+                filesuf += "_" + str((k + i) % 50)
+            
+            idx = np.where(idx_bool)[0]
+            
+            print("Label " + filesuf + " has " + str(len(idx)))
+            labeldata = data[idx]
+
+            np.save("amazon" + filesuf, labeldata)
+
 
 def main():
 
@@ -33,13 +70,6 @@ def main():
         np.save("amazon" + str(i) + "b", labeldata2)
 
     np.save("amazon_all", data)
-    # np.save("amazon_test", testdata)
-
-    # Make a bad dataset, push class 0 to 11 (normal)
-    # baddata = traindata[np.where(traindata[:, 41] == 0)[0]]
-    # baddata[:, -1] = 11
-
-    # np.save("amazon_bad", baddata)
 
 
 def load_raw():
@@ -72,4 +102,4 @@ def standardize_cols(X, mu=None, sigma=None):
 
 if __name__ == "__main__":
 
-    main()
+    slice_iid()

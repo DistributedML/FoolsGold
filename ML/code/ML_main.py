@@ -185,10 +185,10 @@ if __name__ == "__main__":
     toiter = np.concatenate((np.arange(1, 2), 
         (np.arange(0.1, 1, 0.1) * 23).astype(int)))
 
-    for ncp in toiter:
+    for ncp in np.arange(7,9):
 
         models = []
-        
+
         ##################################
         # Add the models; can try a little more IID
         ##################################
@@ -196,7 +196,7 @@ if __name__ == "__main__":
             
             datasuf = ""
             for i in range(ncp):
-                datasuf += "_" + str((k + i) % numClasses)
+                datasuf += str((k + i) % numClasses)
 
             print("Appending " + datasuf)
             models.append(dataPath + datasuf)
@@ -223,7 +223,7 @@ if __name__ == "__main__":
 
         row += 1
 
-    np.savetxt("kdd_iidtest1.csv", all_scores, fmt='%.5f',
+    np.savetxt("results.csv", all_scores, fmt='%.5f',
        delimiter=',')
 
     # Sandbox: difference between ideal bad model and global model
