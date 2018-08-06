@@ -57,7 +57,7 @@ def basic_conv(dataset, num_params, softmax_test, iterations=3000):
 def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
     ideal_attack=False):
 
-    batch_size = 50
+    batch_size = 10
     epsilon = 5
     memory_size = 0
 
@@ -86,7 +86,6 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
     for i in xrange(iterations):
 
         delta = np.zeros((numClients, numParams))
-
 
         ##################################
         # Use significant features filter or not
@@ -142,7 +141,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
         
         weights = weights + this_delta
 
-        if i % 100 == 0:
+        if i % 10 == 0:
             error = softmax_test.train_error(weights)
             print("Train error: %.10f" % error)
             train_progress.append(error)
@@ -180,52 +179,65 @@ if __name__ == "__main__":
     full_model = softmax_model_obj.SoftMaxModel(dataPath + "_train", 1, numClasses)
     Xtest, ytest = full_model.get_data()
 
-    all_scores = np.zeros((10, 5))
-    row = 0
+    for run in np.arange(1, 6):
 
-    toiter = np.concatenate((np.arange(1, 2), 
-        (np.arange(0.1, 1, 0.1) * 23).astype(int)))
+        all_scores = np.zeros((11, 5))
+        row = 0
 
-    for ncp in toiter:
+        # for kdd
+        # toiter = np.concatenate((np.arange(1, 2), 
+        #    (np.arange(0.1, 1, 0.1) * 23).astype(int)))
 
-        models = []
-        
-        ##################################
-        # Add the models; can try a little more IID
-        ##################################
-        for k in range(numClasses):
-            
-            datasuf = ""
-            for i in range(ncp):
-                datasuf += "_" + str((k + i) % numClasses)
+        # for amazone
+        toiter = np.concatenate((np.arange(1, 2), np.arange(5, 55, 5)))
 
-            print("Appending " + datasuf)
-            models.append(dataPath + datasuf)
+        for ncp in toiter:
 
-        for attack in argv[2:]:
-            attack_delim = attack.split("_")
-            sybil_set_size = attack_delim[0]
-            from_class = attack_delim[1]
-            to_class = attack_delim[2]
-            for i in range(int(sybil_set_size)):
-                models.append(dataPath + "_bad_" + from_class + "_" + to_class)
+            models = []
 
-        softmax_test = softmax_model_test.SoftMaxModelTest(dataset, numClasses, numFeatures)
-        weights = non_iid(models, numClasses, numParams, softmax_test, iterations,
-            ideal_attack=False)
+            ##################################
+            # Add the models; can try a little more IID
+            ##################################
+            for k in range(numClasses):
+                
+                if ncp != 50:
+                
+                    datasuf = ""
+                    for i in range(ncp):
+                        datasuf += "_" + str((k + i) % numClasses)
 
-        for attack in argv[2:]:
-            attack_delim = attack.split("_")
-            from_class = attack_delim[1]
-            to_class = attack_delim[2]
-            score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures)
-            print ' '.join(format(f, '.5f') for f in score)
-            all_scores[row] = score
+                else:
 
-        row += 1
+                    datasuf = "_train"
 
-    np.savetxt("kdd_iidtest1.csv", all_scores, fmt='%.5f',
-       delimiter=',')
+                print("Appending " + datasuf)
+                models.append(dataPath + datasuf)
+
+            for attack in argv[2:]:
+                attack_delim = attack.split("_")
+                sybil_set_size = attack_delim[0]
+                from_class = attack_delim[1]
+                to_class = attack_delim[2]
+                for i in range(int(sybil_set_size)):
+                    models.append(dataPath + "_bad_" + from_class + "_" + to_class)
+
+            softmax_test = softmax_model_test.SoftMaxModelTest(dataset, numClasses, numFeatures)
+            weights = non_iid(models, numClasses, numParams, softmax_test, iterations,
+                ideal_attack=False)
+
+            for attack in argv[2:]:
+                attack_delim = attack.split("_")
+                from_class = attack_delim[1]
+                to_class = attack_delim[2]
+                score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures)
+                print ' '.join(format(f, '.5f') for f in score)
+                all_scores[row] = score
+
+            row += 1
+
+        np.savetxt("amazoniid" + str(run) + ".csv", all_scores,
+           fmt='%.5f',
+           delimiter=',')
 
     # Sandbox: difference between ideal bad model and global model
     compare = False
