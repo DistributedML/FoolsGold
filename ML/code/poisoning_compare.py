@@ -24,9 +24,8 @@ def eval(Xtest, ytest, weights, correctLabel, targetLabel, numClasses, numFeatur
     print("Target Training Accuracy on source label " + str(correctLabel) + "s: " + str(correct1))
     print("Target Training Accuracy on target label " + str(targetLabel) + "s: " + str(targetlabel_correct))
     print("Target Attack Rate (" + str(correctLabel) + " to " + str(targetLabel) + "): " + str(attacked1)  + "\n")
-    return overall, correct1, targetlabel_correct, attacked1
-
-
+    return overall, others, correct1, targetlabel_correct, attacked1
+    
 
 def main():
 
