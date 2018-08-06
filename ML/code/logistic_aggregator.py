@@ -61,19 +61,35 @@ def importanceFeatureMapLocal(model, topk_prop):
     
     return M.flatten()
 
+def importanceFeatureHard(model, topk_prop):
+    class_d = int(d / n_classes)
+
+    M = np.reshape(model, (n_classes, class_d))
+    importantFeatures = np.ones((n_classes, class_d))
+    # Top k of 784
+    topk = int(class_d * topk_prop)
+    for i in range(n_classes):
+        sig_features_idx = np.argpartition(M[i], -topk)[0:-topk]     
+        importantFeatures[i][sig_features_idx] = 0
+    
+
+    return importantFeatures.flatten()
 '''
 Aggregates history of gradient directions
 '''
-def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, topk_prop, importance=False, clip=0):
+def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, topk_prop, importance=False, importanceHard=False, clip=0):
 
     # Take all the features of sig_features_idx for each clients
     sd = summed_deltas.copy()
     sig_filtered_deltas = np.take(sd, sig_features_idx, axis=1)
 
-    if importance:
-        # smooth version of importance features
-        importantFeatures = importanceFeatureMapLocal(model, topk_prop)
-        
+    if importance or importanceHard:
+        if importance:
+            # smooth version of importance features
+            importantFeatures = importanceFeatureMapLocal(model, topk_prop)
+        if importanceHard:
+            # hard version of important features
+            importantFeatures = importanceFeatureHard(model, topk_prop)
         for i in range(n):
             sig_filtered_deltas[i] = np.multiply(sig_filtered_deltas[i], importantFeatures)
 

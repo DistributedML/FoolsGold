@@ -64,7 +64,7 @@ def cos(vecA, vecB):
     return np.dot(vecA, vecB)/(np.linalg.norm(vecA) * np.linalg.norm(vecB))
 
 # Variant of non_iid, where noise is added to poisoner_indices
-def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
+def non_iid(model_names, numClasses, numParams, softmax_test, topk_prop, iterations=3000, numSybils=2,
     ideal_attack=False, poisoner_indices = []):
 
     batch_size = 50
@@ -82,7 +82,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
            "_bad_ideal_4_9", 1, numClasses))
 
     numClients = len(list_of_models)
-    logistic_aggregator.init(numClients, numParams)
+    logistic_aggregator.init(numClients, numParams, numClasses)
 
     print("Start training across " + str(numClients) + " clients.")
 
@@ -96,8 +96,8 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
         delta = np.zeros((numClients, numParams))
         
         # Significant features filter
-        sig_features_idx = np.argpartition(weights, -topk)[-topk:]
-        # sig_features_idx = np.arange(numParams)
+        # sig_features_idx = np.argpartition(weights, -topk)[-topk:]
+        sig_features_idx = np.arange(numParams)
 
         for k in range(len(list_of_models)):
             delta[k, :] = list_of_models[k].privateFun(1, weights, batch_size)
@@ -108,14 +108,14 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
 
         # Add adversarial noise
         noisevec = rescale(np.random.rand(numParams), np.min(delta), np.max(delta))
-        delta[poisoner_indices[0], :] = (delta[poisoner_indices[0], :] + 10*noisevec)/10
-        delta[poisoner_indices[1], :] = (delta[poisoner_indices[1], :] - 10*noisevec)/10
+        delta[poisoner_indices[0], :] = delta[poisoner_indices[0], :] + noisevec
+        delta[poisoner_indices[1], :] = delta[poisoner_indices[1], :] - noisevec
         
         # Track the total vector from each individual client
         summed_deltas = summed_deltas + delta
         
         # Use Foolsgold
-        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights)
+        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, topk_prop, importance=False, importanceHard=True)
         # this_delta = logistic_aggregator.average(delta)
         
         weights = weights + this_delta
@@ -178,25 +178,30 @@ if __name__ == "__main__":
 
     softmax_test = softmax_model_test.SoftMaxModelTest(dataset, numClasses, numFeatures)
     # Hard code poisoners in a 2_x_x attack
+    eval_data = np.ones((10, 5))
+    for eval_i in range(10):
+        topk_prop = 0.1 + eval_i*.1
 
-    weights = non_iid(models, numClasses, numParams, softmax_test, iterations, ideal_attack=False, poisoner_indices = [10, 11])
+        weights = non_iid(models, numClasses, numParams, softmax_test, topk_prop, iterations, int(sybil_set_size), ideal_attack=False, poisoner_indices=[10,11])
 
-    for attack in argv[2:]:
-        attack_delim = attack.split("_")
-        from_class = attack_delim[1]
-        to_class = attack_delim[2]
-        score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures)
-    
-    # Sandbox: difference between ideal bad model and global model
-    compare = False
-    if compare:
-        bad_weights = basic_conv(dataPath + "_bad_ideal_" + from_class + "_" +
-           to_class, numParams, softmax_test)
-        poisoning_compare.eval(Xtest, ytest, bad_weights, int(from_class),
-            int(to_class), numClasses, numFeatures)
+        for attack in argv[2:]:
+            attack_delim = attack.split("_")
+            from_class = attack_delim[1]
+            to_class = attack_delim[2]
+            score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures)
+            eval_data[eval_i] = score
 
-        diff = np.reshape(bad_weights - weights, (numClasses, numFeatures))
-        abs_diff = np.reshape(np.abs(bad_weights - weights), (numClasses,
-           numFeatures))
+    np.savetxt('hard_topk_eval_data.csv', eval_data, '%.5f', delimiter=",")
+    # # Sandbox: difference between ideal bad model and global model
+    # compare = False
+    # if compare:
+    #     bad_weights = basic_conv(dataPath + "_bad_ideal_" + from_class + "_" +
+    #        to_class, numParams, softmax_test)
+    #     poisoning_compare.eval(Xtest, ytest, bad_weights, int(from_class),
+    #         int(to_class), numClasses, numFeatures)
+
+    #     diff = np.reshape(bad_weights - weights, (numClasses, numFeatures))
+    #     abs_diff = np.reshape(np.abs(bad_weights - weights), (numClasses,
+    #        numFeatures))
 
     pdb.set_trace()
