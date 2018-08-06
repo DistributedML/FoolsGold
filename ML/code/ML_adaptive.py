@@ -135,18 +135,18 @@ def non_iid(model_names, numClasses, numParams, softmax_test, topk_prop, iterati
                 delta[k, :] = delta[k, :] / np.linalg.norm(delta[k, :])
 
         # Add adversarial noise
-        noisevec = rescale(np.random.rand(numParams), np.min(delta), np.max(delta))
-        delta[poisoner_indices[0], :] = delta[poisoner_indices[0], :] + noisevec
-        delta[poisoner_indices[1], :] = delta[poisoner_indices[1], :] - noisevec
+        # noisevec = rescale(np.random.rand(numParams), np.min(delta), np.max(delta))
+        # delta[poisoner_indices[0], :] = delta[poisoner_indices[0], :] + noisevec
+        # delta[poisoner_indices[1], :] = delta[poisoner_indices[1], :] - noisevec
 
         ### Adaptive poisoning !! use even number sybils ###
-        adaptive = False
+        adaptive = True
         if adaptive:
             sybil_deltas = summed_deltas[10:10+numSybils].copy()
             sybil_deltas = sybil_deltas + delta[10:10+numSybils]
             sybil_cs = smp.cosine_similarity(sybil_deltas) - np.eye(numSybils)
             sybil_cs = np.max(sybil_cs, axis=1)
-            max_similarity = 0.1
+            max_similarity = 0.4
             
             if np.any(sybil_cs > max_similarity):
                 delta[10:10+numSybils] = sybil_noise
@@ -162,7 +162,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, topk_prop, iterati
         summed_deltas = summed_deltas + delta
         
         # Use Foolsgold
-        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, 1.0, importance=False, importanceHard=True)
+        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, 1.0, importance=True, importanceHard=False)
         # this_delta = logistic_aggregator.average(delta)
         
         weights = weights + this_delta
@@ -228,7 +228,7 @@ if __name__ == "__main__":
     eval_data = np.ones((10, 5))
     for eval_i in range(10):
         topk_prop = 0.1 + eval_i*.1
-
+        topk_prop = 1.0
         weights = non_iid(models, numClasses, numParams, softmax_test, topk_prop, iterations, int(sybil_set_size), ideal_attack=False, poisoner_indices=[10,11])
 
         for attack in argv[2:]:
@@ -237,7 +237,7 @@ if __name__ == "__main__":
             to_class = attack_delim[2]
             score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures)
             eval_data[eval_i] = score
-
+        pdb.set_trace()
     np.savetxt('hard_topk_eval_data.csv', eval_data, '%.5f', delimiter=",")
     # # Sandbox: difference between ideal bad model and global model
     # compare = False
