@@ -77,7 +77,7 @@ def importanceFeatureHard(model, topk_prop):
 '''
 Aggregates history of gradient directions
 '''
-def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, topk_prop, importance=False, importanceHard=False, clip=0):
+def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, topk_prop=0, importance=False, importanceHard=False, clip=0):
 
     # Take all the features of sig_features_idx for each clients
     sd = summed_deltas.copy()
