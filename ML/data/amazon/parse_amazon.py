@@ -62,12 +62,10 @@ def main():
 
         idx = np.where(data[:, 10000] == i)[0]
         print("Label " + str(i) + " has " + str(len(idx)))
+        
+        labeldata = data[idx]
 
-        labeldata1 = data[idx[0:15]]
-        labeldata2 = data[idx[15:30]]
-
-        np.save("amazon" + str(i) + "a", labeldata1)
-        np.save("amazon" + str(i) + "b", labeldata2)
+        np.save("amazon_" + str(i), labeldata)
 
     np.save("amazon_all", data)
 
@@ -102,4 +100,4 @@ def standardize_cols(X, mu=None, sigma=None):
 
 if __name__ == "__main__":
 
-    slice_iid()
+    main()
