@@ -165,7 +165,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, topk_prop, iterati
             # sybil_deltas = sybil_deltas + delta[10:10+numSybils]
             sybil_cs = smp.cosine_similarity(summed_deltas[10:10+numSybils] + delta[10:10+numSybils]) - np.eye(numSybils)
             sybil_cs = np.max(sybil_cs, axis=0)
-            max_similarity = 0.5
+            max_similarity = 0.11
             
             if np.any(sybil_cs > max_similarity):
                 delta[10:10+numSybils] = rescaleOrthogonalNoise(sybil_noise, delta)
@@ -181,7 +181,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, topk_prop, iterati
         summed_deltas = summed_deltas + delta
         
         # Use Foolsgold
-        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, 0.05, importance=True, importanceHard=False)
+        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, 0.05, importance=False, importanceHard=True)
         # this_delta = logistic_aggregator.average(delta)
         
         weights = weights + this_delta
