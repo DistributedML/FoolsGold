@@ -63,27 +63,18 @@ def rescale(x, a, b):
 def cos(vecA, vecB):
     return np.dot(vecA, vecB)/(np.linalg.norm(vecA) * np.linalg.norm(vecB))
 
-# def getOrthogonalNoise(numSybils, numParams):
-#     numOrthoBasis = int(math.ceil(numSybils / 2.0))
-
-#     q, r = np.linalg.qr(np.random.rand(numParams, numOrthoBasis))
-#     q = q.T
-    
-#     noiseGrad = np.zeros((numSybils, numParams))
-#     noiseGrad[0:numOrthoBasis] = q
-#     for i in range(numSybils - numOrthoBasis):
-#         noiseGrad[numOrthoBasis + i] = - q[i]
-    
-#     return noiseGrad
-
 def getOrthogonalNoise(numSybils, numParams):
-    numOrthoBasis = numSybils
+    numOrthoBasis = int(math.ceil(numSybils / 2.0))
 
     q, r = np.linalg.qr(np.random.rand(numParams, numOrthoBasis))
-    q.T[:,0:784] = 0
-    q.T[:,1568:5488] = 0
-    q.T[:,6272:] = 0
-    return q.T
+    q = q.T
+    
+    noiseGrad = np.zeros((numSybils, numParams))
+    noiseGrad[0:numOrthoBasis] = q
+    for i in range(numSybils - numOrthoBasis):
+        noiseGrad[numOrthoBasis + i] = - q[i]
+    
+    return noiseGrad
 
 def rescaleOrthogonalNoise(noise, deltas):
     # maximum norm of organic gradients
@@ -94,6 +85,26 @@ def rescaleOrthogonalNoise(noise, deltas):
         noise[i] = noise[i] / (np.linalg.norm(noise[i]) / maxNorm)
 
     return noise
+
+
+# def getOrthogonalNoise(numSybils, numParams):
+#     numOrthoBasis = numSybils
+
+#     q, r = np.linalg.qr(np.random.rand(numParams, numOrthoBasis))
+#     q.T[:,0:784] = 0
+#     q.T[:,1568:5488] = 0
+#     q.T[:,6272:] = 0
+#     return q.T
+
+# def rescaleOrthogonalNoise(noise, deltas):
+#     # maximum norm of organic gradients
+#     maxNorm = np.max(np.linalg.norm(deltas, axis=1))
+#     n,d = noise.shape
+
+#     for i in range(n):
+#         noise[i] = noise[i] / (np.linalg.norm(noise[i]) / maxNorm)
+
+#     return noise
 
 # Variant of non_iid, where noise is added to poisoner_indices
 def non_iid(model_names, numClasses, numParams, softmax_test, topk_prop, iterations=3000, numSybils=2,
@@ -150,17 +161,16 @@ def non_iid(model_names, numClasses, numParams, softmax_test, topk_prop, iterati
         ### Adaptive poisoning !! use even number sybils ###
         adaptive = True
         if adaptive:
-            sybil_deltas = summed_deltas[10:10+numSybils].copy()
-            sybil_deltas = sybil_deltas + delta[10:10+numSybils]
-            sybil_cs = smp.cosine_similarity(sybil_deltas) - np.eye(numSybils)
-            sybil_cs = np.max(sybil_cs, axis=1)
-            max_similarity = 0.6
+            # sybil_deltas = summed_deltas[10:10+numSybils].copy()
+            # sybil_deltas = sybil_deltas + delta[10:10+numSybils]
+            sybil_cs = smp.cosine_similarity(summed_deltas[10:10+numSybils] + delta[10:10+numSybils]) - np.eye(numSybils)
+            sybil_cs = np.max(sybil_cs, axis=0)
+            max_similarity = 0.5
             
             if np.any(sybil_cs > max_similarity):
                 delta[10:10+numSybils] = rescaleOrthogonalNoise(sybil_noise, delta)
             else:
                 numPoisonContribution += 1
-
         # delta[10:10+numSybils] = getOrthogonalNoise(numSybils, numParams) 
         # pdb.set_trace()
         # pdb:: np.max(smp.cosine_similarity(delta[10:10+numSybils]) - np.eye(numSybils), axis=1)
@@ -171,7 +181,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, topk_prop, iterati
         summed_deltas = summed_deltas + delta
         
         # Use Foolsgold
-        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, 0.05, importance=False, importanceHard=False)
+        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, 0.05, importance=True, importanceHard=False)
         # this_delta = logistic_aggregator.average(delta)
         
         weights = weights + this_delta
