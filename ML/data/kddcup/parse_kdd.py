@@ -2,7 +2,40 @@ import pandas as pd
 import pdb
 import numpy as np
 
+def slice_iid(numclassesper):
+
+    df = pd.read_csv("kddcup.csv", header=None)
+
+    for i in [1, 2, 3, 41]:
+        df[i] = df[i].astype("category").cat.codes
+
+    data = df.as_matrix()
+    sfflidx = np.random.permutation(data.shape[0])
+
+    # Shuffle the data
+    data = data[sfflidx]
+
+    # standardize each column
+    data[:, 0:41], _, _ = standardize_cols(data[:, 0:41])
+
+    for k in range(int(np.max(data[:, 41]) + 1)):
+
+        filesuf = ""
+        idx_bool = np.full(data.shape[0], False)
+        
+        for i in range(numclassesper):
+            idx_bool += data[:, 41] == ((k + i) % 23)
+            filesuf += "_" + str((k + i) % 23)
+        
+        idx = np.where(idx_bool)[0]
+        
+        print("Label " + filesuf + " has " + str(len(idx)))
+        labeldata = data[idx]
+
+        np.save("kddcup" + filesuf, labeldata)
+
 def main():
+
     df = pd.read_csv("kddcup.csv", header=None)
 
     for i in [1, 2, 3, 41]:
@@ -31,19 +64,7 @@ def main():
         print("Label " + str(i) + " has " + str(len(idx)))
         labeldata = traindata[idx]
 
-        nn = labeldata.shape[0]
-
-        if nn > 20:
-            np.save("kddcup" + str(i) + 'a', labeldata[0:int(nn/3)])
-            np.save("kddcup" + str(i) + 'b', labeldata[int(nn/3):int(nn/1.5)])
-            np.save("kddcup" + str(i) + 'c', labeldata[int(nn/1.5):nn])
-        
-        else:
-            np.save("kddcup" + str(i) + 'a', labeldata)
-            np.save("kddcup" + str(i) + 'b', labeldata)
-            np.save("kddcup" + str(i) + 'c', labeldata)
-
-        np.save("kddcup" + str(i), labeldata)
+        np.save("kddcup_" + str(i), labeldata)
 
         ovridx = np.where(data[:, 41] == i)[0]
         print("Overall, label " + str(i) + " has " + str(len(ovridx)))
@@ -57,7 +78,6 @@ def main():
 
     np.save("kddcup_bad_0_11", baddata)
 
-# pd.get_dummies(df, columns=[1, 2, 3])
 
 
 def standardize_cols(X, mu=None, sigma=None):
@@ -75,4 +95,8 @@ def standardize_cols(X, mu=None, sigma=None):
 
 
 if __name__ == "__main__":
+    
     main()
+
+    for i in (np.arange(0.1, 1, 0.1) * 23).astype(int):
+        slice_iid(i)
