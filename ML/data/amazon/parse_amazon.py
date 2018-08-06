@@ -101,4 +101,4 @@ def standardize_cols(X, mu=None, sigma=None):
 
 if __name__ == "__main__":
 
-    main()
+    slice_iid()

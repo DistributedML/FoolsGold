@@ -81,11 +81,11 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
     train_progress = []
 
     delta_memory = np.zeros((numClients, numParams, memory_size))
+    summed_deltas = np.zeros((numClients, numParams))
 
     for i in xrange(iterations):
 
         delta = np.zeros((numClients, numParams))
-        summed_deltas = np.zeros((numClients, numParams))
 
         ##################################
         # Use significant features filter or not
