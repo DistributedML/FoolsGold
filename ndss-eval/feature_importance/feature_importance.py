@@ -6,29 +6,42 @@ import pdb
 
 fig, ax = plt.subplots(figsize=(10, 5))
 
-full_df = np.zeros((10, 5, 5))
+full_df = np.zeros((14, 5, 5))
 
 for run in range(1, 6):
+	
+	df = pd.read_csv("hard_topk_eval_left_" + str(run) + ".csv",
+		header=None)
+
+	full_df[0:4, :, run - 1] = df.values
+
 	df = pd.read_csv("hard_topk_eval_data" + str(run) + ".csv",
 		header=None)
-	full_df[:, :, run - 1] = df.values
+	
+	full_df[4:, :, run - 1] = df.values
 
 # Take the mean across 5 runs
 plot_df = np.mean(full_df, axis=2)
 
-pdb.set_trace()
+xticks = np.array([0.001, 0.005, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4,
+	0.5, 0.6, 0.7, 0.8, 0.9, 1])
 
 # plt.plot(data1, color="black", label="Baseline", lw=3)
-l1 = mlines.Line2D(np.arange(0, 1, 0.1), plot_df[:, 4],
-	label="Baseline", marker='*', color='black', markersize=16)
+l1 = mlines.Line2D(xticks, plot_df[:, 4],
+	label="Attack Rate", marker='*', color='black', markersize=16)
+
+l2 = mlines.Line2D(xticks, plot_df[:, 0],
+	label="Training Accuracy", marker='*', color='red',
+	markersize=16)
 
 ax.add_line(l1)
-ax.set_xlim(0, 1.1)
+ax.add_line(l2)
+ax.set_xlim(-0.05, 1.1)
 
-plt.legend(handles=[l1], loc='right', fontsize=18)
+plt.legend(handles=[l1, l2], loc='right', fontsize=18)
 
-plt.xlabel("k", fontsize=22)
-plt.ylabel("Attack Rate", fontsize=22)
+plt.xlabel("Proportion of Indicative Features", fontsize=22)
+plt.ylabel("%", fontsize=22)
 
 axes = plt.gca()
 axes.set_ylim([0, 1])

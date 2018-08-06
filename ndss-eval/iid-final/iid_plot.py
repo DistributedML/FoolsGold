@@ -6,21 +6,35 @@ import pdb
 
 fig, ax = plt.subplots(figsize=(10, 5))
 
-full_df = np.zeros((11, 5, 5))
+mnist_full_df = np.zeros((11, 5, 5))
+amazon_full_df = np.zeros((11, 5, 5))
 
 for run in range(1, 6):
+	
 	df = pd.read_csv("mnistiid" + str(run) + ".csv",
 		header=None)
-	full_df[:, :, run - 1] = df.values
+	
+	mnist_full_df[:, :, run - 1] = df.values
+
+	df = pd.read_csv("amazoniid" + str(run) + ".csv",
+		header=None)
+
+	amazon_full_df[:, :, run - 1] = df.values
 
 # Take the mean across 5 runs
-plot_df = np.mean(full_df, axis=2)
+# plot_df = np.mean(mnist_full_df, axis=2)
 
 # plt.plot(data1, color="black", label="Baseline", lw=3)
-l1 = mlines.Line2D(np.arange(0, 110, 10), plot_df[:, 0],
-	label="Baseline", marker='*', color='black', markersize=16)
+l1 = mlines.Line2D(np.arange(0, 110, 10), np.mean(mnist_full_df,
+	axis=2)[:, 0], label="Baseline", marker='*', color='black',
+	markersize=16) 
+
+l2 = mlines.Line2D(np.arange(0, 110, 10), np.mean(amazon_full_df,
+	axis=2)[:, 0], label="Amazon", marker='*', color='orange',
+	markersize=16) 
 
 ax.add_line(l1)
+ax.add_line(l2)
 ax.set_xlim(0, 105)
 
 plt.legend(handles=[l1], loc='right', fontsize=18)
