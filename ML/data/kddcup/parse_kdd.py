@@ -64,7 +64,7 @@ def main():
         print("Label " + str(i) + " has " + str(len(idx)))
         labeldata = traindata[idx]
 
-        np.save("kddcup_" + str(i), labeldata)
+        np.save("kddcup" + str(i), labeldata)
 
         ovridx = np.where(data[:, 41] == i)[0]
         print("Overall, label " + str(i) + " has " + str(len(ovridx)))
@@ -96,7 +96,7 @@ def standardize_cols(X, mu=None, sigma=None):
 
 if __name__ == "__main__":
     
-    # main()
+    main()
 
-    for i in (np.arange(0.1, 1, 0.1) * 23).astype(int):
-        slice_iid(i)
+    # for i in (np.arange(0.1, 1, 0.1) * 23).astype(int):
+    #     slice_iid(i)
