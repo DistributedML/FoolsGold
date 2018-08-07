@@ -42,7 +42,7 @@ p4 = ax.bar(np.arange(5) + width, np.mean(doubleobj[:, 1:3], axis=1),
 ax.set_xticks(np.arange(6) + width)
 ax.set_xticklabels(prop, fontsize=16)
 
-ax.set_yticklabels(np.arange(0, 0.6, 0.1))
+ax.set_yticklabels(np.array([0, 0.1, 0.2, 0.3, 0.4, 0.5]))
 plt.setp(ax.get_yticklabels(), fontsize=16)
 
 ax.spines['right'].set_visible(False)
@@ -67,7 +67,7 @@ first = 0
 
 for i in ax.patches:
     # get_x pulls left or right; get_height pushes up or down
-    height = str(i.get_height() * 100)[0:5]
+    height = str(i.get_height() * 100)[0:4]
     if i.get_height() < 0.0001:
         height = "  0"
 

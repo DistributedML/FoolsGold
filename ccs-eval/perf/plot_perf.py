@@ -10,7 +10,8 @@ df = pd.read_csv("perf.csv", header=None)
 data = df.values
 
 # plt.plot(data1, color="black", label="Baseline", lw=3)
-l1 = mlines.Line2D(data[0], data[1], label="Baseline", marker='*', color='black', markersize=16)
+l1 = mlines.Line2D(data[0], data[1], label="Federated Learning",
+	marker='*', color='black', markersize=16)
 
 # plt.plot(data2, color="blue", label="Krum", lw=3)
 l2 = mlines.Line2D(data[0], data[2], label="FoolsGold", marker='o', color='orange', markersize=16)
