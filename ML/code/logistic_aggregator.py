@@ -116,9 +116,10 @@ def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, topk_pro
     wv[(np.isinf(wv) + wv > 1)] = 1
     wv[(wv < 0)] = 0
     
-    if iter % 500 == 0 and iter != 0:
-        print maxcs
-        print wv
+    # if iter % 100 == 0 and iter != 0:
+    #     print maxcs
+    #     print wv
+
     if clip != 0:
 
         # Augment onto krum

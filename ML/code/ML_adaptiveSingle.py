@@ -135,20 +135,20 @@ def non_iid(max_similarity, Xtest, ytest, from_class, to_class, model_names, num
     summed_deltas = np.zeros((numClients, numParams))
 
     #### Cosine similarity for adversaries ####
-    sybil_noise = getOrthogonalNoise2(numSybils, numParams)
+    sybil_noise = getOrthogonalNoise(numSybils, numParams)
     Attack_rates = []
     Attack_rates_iter = []
     numPoisonContribution = 0.0
     for i in xrange(iterations):
-        # if i % 10 == 0 and max_similarity < 0.2:
-        #     score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures, False)
-        #     Attack_rates.append(score[4])
-        #     Attack_rates_iter.append(i)
-        #     print("Attack rate: " + str(score[4]))
-        #     # attack success
-        #     if score[4] > 0.8:
-        #         pdb.set_trace()
-        #         return weights, numPoisonContribution / i
+        if i % 10 == 0 and max_similarity < 0.2:
+            score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures, False)
+            Attack_rates.append(score[4])
+            Attack_rates_iter.append(i)
+            print("Attack rate: " + str(score[4]))
+            # attack success
+            if score[4] > 0.8:
+                pdb.set_trace()
+                return weights, numPoisonContribution / i
 
         delta = np.zeros((numClients, numParams))
         
@@ -255,7 +255,7 @@ if __name__ == "__main__":
 
     softmax_test = softmax_model_test.SoftMaxModelTest(dataset, numClasses, numFeatures)
     # Hard code poisoners in a 2_x_x attack
-    threshholds = [0.8, 0.6, 0.4, 0.2, 0.1, 0.05, 0.01, 0.001]
+    threshholds = [0.05, 0.8, 0.6, 0.4, 0.2, 0.1, 0.05, 0.01, 0.001]
     num_trials = 5
 
     eval_data = np.zeros((num_trials*len(threshholds), 2))
@@ -267,7 +267,7 @@ if __name__ == "__main__":
             topk_prop = 0.05
             weights, ratio = non_iid(max_similarity, Xtest, ytest, from_class, to_class, models, numClasses, numParams, softmax_test, topk_prop, iterations, int(sybil_set_size), ideal_attack=False, poisoner_indices=[10,11])
             eval_data[num_trials*sim_i + eval_i] = [max_similarity, ratio]
-
+            pdb.set_trace()
             # for attack in argv[2:]:
             #     attack_delim = attack.split("_")
             #     from_class = attack_delim[1]

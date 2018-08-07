@@ -3,7 +3,7 @@ import pandas as pd
 import pdb
 
 
-def eval(Xtest, ytest, weights, correctLabel, targetLabel, numClasses, numFeatures):
+def eval(Xtest, ytest, weights, correctLabel, targetLabel, numClasses, numFeatures, verbose=True):
 
     # hardcoded for MNIST
     W = np.reshape(weights, (numClasses, numFeatures))
@@ -18,12 +18,12 @@ def eval(Xtest, ytest, weights, correctLabel, targetLabel, numClasses, numFeatur
 
     targetlabel_idx = np.where(ytest == targetLabel)
     targetlabel_correct = np.mean(yhat[targetlabel_idx] == targetLabel)
-
-    print("Accuracy overall: " + str(overall))
-    print("Accuracy on other digits: " + str(others))
-    print("Target Training Accuracy on source label " + str(correctLabel) + "s: " + str(correct1))
-    print("Target Training Accuracy on target label " + str(targetLabel) + "s: " + str(targetlabel_correct))
-    print("Target Attack Rate (" + str(correctLabel) + " to " + str(targetLabel) + "): " + str(attacked1)  + "\n")
+    if verbose:
+        print("Accuracy overall: " + str(overall))
+        print("Accuracy on other digits: " + str(others))
+        print("Target Training Accuracy on source label " + str(correctLabel) + "s: " + str(correct1))
+        print("Target Training Accuracy on target label " + str(targetLabel) + "s: " + str(targetlabel_correct))
+        print("Target Attack Rate (" + str(correctLabel) + " to " + str(targetLabel) + "): " + str(attacked1)  + "\n")
     return overall, others, correct1, targetlabel_correct, attacked1
     
 
