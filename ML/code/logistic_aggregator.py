@@ -115,10 +115,6 @@ def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, topk_pro
     wv = (np.log(wv / (1 - wv)) + 0.5)
     wv[(np.isinf(wv) + wv > 1)] = 1
     wv[(wv < 0)] = 0
-    
-    # if iter % 100 == 0 and iter != 0:
-    #     print maxcs
-    #     print wv
 
     if clip != 0:
 
@@ -128,6 +124,10 @@ def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, topk_pro
 
         # Filter out the highest krum scores
         wv[bad_idx] = 0
+
+    if iter % 500 == 0 and iter != 0:
+        print maxcs
+        print wv
 
     # Apply the weight vector on this delta
     delta = np.reshape(this_delta, (n, d))
