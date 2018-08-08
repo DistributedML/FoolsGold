@@ -134,7 +134,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
 
         # Use Foolsgold (can optionally clip gradients via Krum)
         this_delta = logistic_aggregator.foolsgold(delta,
-           summed_deltas, sig_features_idx, i, weights, clip=1)
+           summed_deltas, sig_features_idx, i, weights, clip=0)
         
         # Krum
         # this_delta = logistic_aggregator.krum(delta, clip=1)

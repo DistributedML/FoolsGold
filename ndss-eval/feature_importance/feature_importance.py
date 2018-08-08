@@ -38,16 +38,16 @@ l1 = mlines.Line2D(xticks, plot_df[:, 4],
 	label="Attack Rate", marker='*', color='red', markersize=16)
 
 l2 = mlines.Line2D(xticks, plot_df[:, 0],
-	label="Training Accuracy", marker='*', color='green',
+	label="Training Accuracy", marker='s', color='green',
 	markersize=16)
 
 l3 = mlines.Line2D(xticks, np.full(14, soft_plot_df[4]),
 	label="Soft Attack Rate", color='red',
-	markersize=16)
+	linestyle='dashed', markersize=16)
 
 l4 = mlines.Line2D(xticks, np.full(14, soft_plot_df[0]),
-	label="Soft Training Accuracy", color='green',
-	markersize=16)
+	label="Soft Training Accuracy", color='green', 
+	linestyle='dashed', markersize=16)
 
 ax.add_line(l1)
 ax.add_line(l2)
@@ -55,13 +55,13 @@ ax.add_line(l3)
 ax.add_line(l4)
 ax.set_xlim(-0.05, 1.1)
 
-plt.legend(handles=[l1, l2, l3, l4], loc='right', fontsize=18)
+plt.legend(handles=[l1, l2], loc='right', fontsize=18)
 
 plt.xlabel("Proportion of Indicative Features", fontsize=22)
 plt.ylabel("%", fontsize=22)
 
 axes = plt.gca()
-axes.set_ylim([0, 1])
+axes.set_ylim([-0.05, 1.1])
 
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)

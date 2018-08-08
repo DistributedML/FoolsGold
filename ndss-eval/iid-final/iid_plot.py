@@ -31,24 +31,36 @@ for run in range(1, 6):
 # plot_df = np.mean(mnist_full_df, axis=2)
 
 # plt.plot(data1, color="black", label="Baseline", lw=3)
-l1 = mlines.Line2D(np.arange(0, 110, 10), np.mean(mnist_full_df,
-	axis=2)[:, 0], label="MNIST", marker='*', color='black',
-	markersize=16) 
-
-l2 = mlines.Line2D(np.arange(0, 110, 10), np.mean(kdd_full_df,
-	axis=2)[:, 0], label="KDDCup", marker='*', color='green',
-	markersize=16) 
-
-l3 = mlines.Line2D(np.arange(0, 110, 10), np.mean(amazon_full_df,
+l1 = mlines.Line2D(np.arange(0, 110, 10), np.mean(amazon_full_df,
 	axis=2)[:, 0], label="Amazon", marker='*', color='orange',
-	markersize=16) 
+	markersize=12) 
+
+l2 = mlines.Line2D(np.arange(0, 110, 10), np.mean(mnist_full_df,
+	axis=2)[:, 0], label="MNIST", marker='s', color='black',
+	markersize=12) 
+
+l3 = mlines.Line2D(np.arange(0, 110, 10), np.mean(kdd_full_df,
+	axis=2)[:, 0], label="KDDCup", marker='>', color='green',
+	markersize=12) 
+
+ax.errorbar(np.arange(0, 110, 10), np.mean(mnist_full_df, 
+	axis=2)[:, 0], xerr=0, yerr=np.std(mnist_full_df, axis=2)[:, 0],
+	color='black')
+
+ax.errorbar(np.arange(0, 110, 10), np.mean(amazon_full_df, 
+	axis=2)[:, 0], xerr=0, yerr=np.std(amazon_full_df, axis=2)[:, 0],
+	color='orange')
+
+ax.errorbar(np.arange(0, 110, 10), np.mean(kdd_full_df, 
+	axis=2)[:, 0], xerr=0, yerr=np.std(kdd_full_df, axis=2)[:, 0],
+	color='green')
 
 ax.add_line(l1)
 ax.add_line(l2)
 ax.add_line(l3)
 ax.set_xlim(-2, 105)
 
-plt.legend(handles=[l1, l2, l3], loc='right', fontsize=18)
+plt.legend(handles=[l1, l2, l3], loc='lower right', fontsize=18)
 
 plt.xlabel("% of classes per client", fontsize=22)
 plt.ylabel("Training Accuracy", fontsize=22)
@@ -63,6 +75,6 @@ plt.setp(ax.get_xticklabels(), fontsize=18)
 plt.setp(ax.get_yticklabels(), fontsize=18)
 
 fig.tight_layout(pad=0.1)
-fig.savefig("moreiid.pdf")
+fig.savefig("fig_moreiid.pdf")
 
 plt.show()
