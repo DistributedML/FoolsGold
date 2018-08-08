@@ -135,7 +135,7 @@ def non_iid(max_similarity, Xtest, ytest, from_class, to_class, model_names, num
     summed_deltas = np.zeros((numClients, numParams))
 
     #### Cosine similarity for adversaries ####
-    sybil_noise = getOrthogonalNoise2(numSybils, numParams)
+    sybil_noise = getOrthogonalNoise(numSybils, numParams)
     Attack_rates = []
     Attack_rates_iter = []
     numPoisonContribution = 0.0
@@ -191,7 +191,7 @@ def non_iid(max_similarity, Xtest, ytest, from_class, to_class, model_names, num
         summed_deltas = summed_deltas + delta
         
         # Use Foolsgold
-        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, 0.05, importance=True, importanceHard=False)
+        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, 1.0, importance=True, importanceHard=False)
         # this_delta = logistic_aggregator.average(delta)
         
         weights = weights + this_delta
@@ -255,10 +255,11 @@ if __name__ == "__main__":
 
     softmax_test = softmax_model_test.SoftMaxModelTest(dataset, numClasses, numFeatures)
     # Hard code poisoners in a 2_x_x attack
-    threshholds = [0.8, 0.6, 0.4, 0.2, 0.1, 0.05, 0.01, 0.001]
+    threshholds = [0.29, 0.28, 0.27, 0.26, 0.25]
+    # threshholds = [0.5, 0.25, 0.1, 0.01, 0.001]
     num_trials = 5
 
-    eval_data = np.zeros((num_trials*len(threshholds), 2))
+    eval_data = np.zeros((num_trials*len(threshholds), 3))
 
     for sim_i in range(len(threshholds)):
         max_similarity = threshholds[sim_i]
@@ -266,16 +267,16 @@ if __name__ == "__main__":
             print("Evaluating " + str(eval_i) + "th iteration of " + str(max_similarity))
             topk_prop = 0.05
             weights, ratio = non_iid(max_similarity, Xtest, ytest, from_class, to_class, models, numClasses, numParams, softmax_test, topk_prop, iterations, int(sybil_set_size), ideal_attack=False, poisoner_indices=[10,11])
-            eval_data[num_trials*sim_i + eval_i] = [max_similarity, ratio]
 
-            # for attack in argv[2:]:
-            #     attack_delim = attack.split("_")
-            #     from_class = attack_delim[1]
-            #     to_class = attack_delim[2]
-            #     score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures)
-            #     eval_data[eval_i] = score
+            for attack in argv[2:]:
+                attack_delim = attack.split("_")
+                from_class = attack_delim[1]
+                to_class = attack_delim[2]
+                score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures)
+            
+            eval_data[num_trials*sim_i + eval_i] = [max_similarity, ratio, score[4]]
 
-    np.savetxt('threshhold_trend.csv', eval_data, '%.5f', delimiter=",")
+    np.savetxt('adaptive_attackrate.csv', eval_data, '%.5f', delimiter=",")
     # # Sandbox: difference between ideal bad model and global model
     # compare = False
     # if compare:
