@@ -139,9 +139,12 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
         # Krum
         # this_delta = logistic_aggregator.krum(delta, clip=1)
         
+        # Krum
+        # this_delta = logistic_aggregator.average(delta)
+
         weights = weights + this_delta
 
-        if i % 100 == 0:
+        if i % 200 == 0:
             error = softmax_test.train_error(weights)
             print("Train error: %.10f" % error)
             train_progress.append(error)
@@ -200,7 +203,7 @@ if __name__ == "__main__":
         softmax_test = softmax_model_test.SoftMaxModelTest(dataset, numClasses, numFeatures)
         
         weights = non_iid(models, numClasses, numParams, softmax_test,
-            iterations, ideal_attack=True)
+            iterations, ideal_attack=False)
 
         for attack in argv[2:]:
             attack_delim = attack.split("_")
@@ -209,7 +212,7 @@ if __name__ == "__main__":
             score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures)
             eval_data[run] = score
 
-    np.savetxt("combined_attack_fg.csv", eval_data, fmt='%.5f',
+    np.savetxt("fg_mnist.csv", eval_data, fmt='%.5f',
        delimiter=',')
 
     # Sandbox: difference between ideal bad model and global model

@@ -42,7 +42,8 @@ p4 = ax.bar(np.arange(5) + width, np.mean(doubleobj[:, 1:3], axis=1),
 ax.set_xticks(np.arange(6) + width)
 ax.set_xticklabels(prop, fontsize=16)
 
-ax.set_yticklabels(np.array([0, 0.1, 0.2, 0.3, 0.4, 0.5]))
+ax.set_yticklabels(np.array([0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35,
+   0.4]))
 plt.setp(ax.get_yticklabels(), fontsize=16)
 
 ax.spines['right'].set_visible(False)
@@ -51,7 +52,7 @@ ax.spines['top'].set_visible(False)
 plt.xlabel("Proportion of Mixed Data", fontsize=22)
 plt.ylabel('Attack Rate (%)', fontsize=22)
 
-plt.ylim(0, 0.006)
+plt.ylim(0, 0.0045)
 
 totals = []
 

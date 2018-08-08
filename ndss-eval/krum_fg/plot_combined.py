@@ -15,7 +15,7 @@ data3 = df3.values
 
 width = 0.25
 fig, ax = plt.subplots(figsize=(8, 4))
-ticklabels = ['FoolsGold', 'Krum', 'FoolsGold+Krum']
+ticklabels = ['FoolsGold', 'MultiKrum', 'FoolsGold+MultiKrum']
 
 plot_data1 = np.ones(3)
 plot_data1[0] = np.mean(data1[:,0])
@@ -33,7 +33,7 @@ p2 = ax.bar(np.arange(3) + width, plot_data2, width, hatch='.')
 ax.set_xticks(np.arange(3) + width / 2)
 ax.set_xticklabels(ticklabels, fontsize=14)
 
-ax.set_yticklabels(np.array([0, 0.2, 0.4, 0.6, 0.8, 1]))
+ax.set_yticklabels(np.array([0, 20, 40, 60, 80, 100]))
 plt.setp(ax.get_yticklabels(), fontsize=14)
 
 ax.spines['right'].set_visible(False)
@@ -61,9 +61,7 @@ for i in ax.patches:
         ax.text(i.get_x() + 0.05, i.get_height() + .02, height, fontsize=14, color='black')
 
 # ##############################
-
-plt.xlabel('Batch Size', fontsize=16)
-plt.ylabel('Attack Rate (%)', fontsize=16)
+plt.ylabel('%', fontsize=16)
 
 ax.legend((p1[0], p2[0]),
           ('Training Accuracy', 'Attack Rate'),

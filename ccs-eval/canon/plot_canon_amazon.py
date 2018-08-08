@@ -10,9 +10,10 @@ ticklabels = ["A-1 MNIST", "A-1 KDD", "A-1 Amazon", "A-5 MNIST", "A-5 KDD",
               "A-5 Amazon", "A-2x5 MNIST", "A-2x5 Amazon", "A-5x5 MNIST", "A-5x5 Amazon",
               "A-AllOnOne ", "A-99"]
 
-ticklabels_mnist = ["Baseline", "A-1", "A-5", "A-2x5", "A-5x5"]
+ticklabels_mnist = ["Baseline No Attack", "FoolsGold No Attack",
+            "A-1", "A-5", "A-2x5", "A-5x5"]
 
-is_mnist = [2, 5, 8, 10, 12]
+is_mnist = [2, 5, 8, 11, 13, 15]
 
 df1 = pd.read_csv("canon_rate.csv", header=None)
 data1 = df1.values
@@ -35,7 +36,7 @@ toplot2[toplot2 < 0.01] = 0.005
 
 plt.subplot(2, 1, 1)
 plt.ylim(0, 1)
-plt.bar(np.arange(5), toplot[is_mnist], width)
+plt.bar(np.arange(6), toplot[is_mnist], width)
 plt.ylabel("Attack Rate", fontsize=18)
 plt.tick_params(
     axis='x',          # changes apply to the x-axis
@@ -62,9 +63,9 @@ plt.tick_params(
     top=False,         # ticks along the top edge are off
     labelbottom=False) # labels along the bottom edge are of
 
-plt.bar(np.arange(5), toplot2[is_mnist], width)
+plt.bar(np.arange(6), toplot2[is_mnist], width)
 plt.ylabel("Accuracy", fontsize=18)
-plt.xticks(np.arange(5), ticklabels_mnist, fontsize=16)
+plt.xticks(np.arange(6), ticklabels_mnist, rotation=20, fontsize=16)
 
 fig.tight_layout(pad=0.1)
 fig.savefig("fig_canon_amazon.pdf")
