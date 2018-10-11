@@ -58,8 +58,6 @@ def main():
     test_error = np.mean(y_hat_test != ytest)
     print("Test Err: " + str(test_error))
 
-    pdb.set_trace()
-
 
 def slice_for_tm():
 
@@ -106,8 +104,6 @@ def slice_for_tm():
 
     test_slice = np.hstack((Xtest, np.reshape(ytest, (len(ytest), 1))))
     np.save("mnist_test", test_slice)
-
-    pdb.set_trace()
 
 
 def slice_for_iid(nclassesper):

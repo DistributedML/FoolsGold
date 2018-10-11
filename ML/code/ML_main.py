@@ -183,8 +183,9 @@ if __name__ == "__main__":
     Xtest, ytest = full_model.get_data()
 
     eval_data = np.zeros((5, 5))
+    num_executions = 1
 
-    for run in range(5):
+    for run in range(num_executions):
 
         models = []
 
@@ -212,9 +213,6 @@ if __name__ == "__main__":
             score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures)
             eval_data[run] = score
 
-    np.savetxt("fg_mnist.csv", eval_data, fmt='%.5f',
-       delimiter=',')
-
     # Sandbox: difference between ideal bad model and global model
     compare = False
     if compare:
@@ -226,5 +224,3 @@ if __name__ == "__main__":
         diff = np.reshape(bad_weights - weights, (numClasses, numFeatures))
         abs_diff = np.reshape(np.abs(bad_weights - weights), (numClasses,
            numFeatures))
-
-    pdb.set_trace()
