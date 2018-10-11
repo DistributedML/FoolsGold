@@ -1,7 +1,6 @@
 from __future__ import division
 import numpy as np
 import pdb
-import falconn
 import sklearn.metrics.pairwise as smp
 import matplotlib.pyplot as plt
 n = 0

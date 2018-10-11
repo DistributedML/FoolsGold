@@ -2,8 +2,7 @@ from __future__ import division
 from numpy.linalg import norm
 import matplotlib.pyplot as plt
 
-import logistic_aggregator
-import softmax_model
+import model_aggregator
 import softmax_model_test
 import softmax_model_obj
 import poisoning_compare
@@ -28,11 +27,10 @@ signal.signal(signal.SIGINT, debug_signal_handler)
 def basic_conv(dataset, num_params, softmax_test, iterations=3000):
 
     batch_size = 5
-    epsilon = 5
 
     # Global
     # numFeatures = softmax_model.init(dataset, epsilon=epsilon)
-    softmax_model = softmax_model_obj.SoftMaxModel(dataset, epsilon, numClasses)
+    softmax_model = softmax_model_obj.SoftMaxModel(dataset, numClasses)
 
     print("Start training")
 
@@ -64,16 +62,15 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
     list_of_models = []
 
     for dataset in model_names:
-        list_of_models.append(softmax_model_obj.SoftMaxModel(dataset, epsilon, 
-            numClasses))
+        list_of_models.append(softmax_model_obj.SoftMaxModel(dataset, numClasses))
 
     # Include the model that sends the ideal vector on each iteration
     if ideal_attack:
         list_of_models.append(softmax_model_obj.SoftMaxModelEvil(dataPath +
-           "_bad_ideal_4_9", 1, numClasses))
+           "_bad_ideal_4_9", numClasses))
 
     numClients = len(list_of_models)
-    logistic_aggregator.init(numClients, numParams)
+    model_aggregator.init(numClients, numParams)
 
     print("Start training across " + str(numClients) + " clients.")
 
@@ -133,13 +130,13 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
         ##################################
 
         # Use Foolsgold (can optionally clip gradients via Krum)
-        # this_delta = logistic_aggregator.foolsgold(delta,
+        # this_delta = model_aggregator.foolsgold(delta,
         #    summed_deltas, sig_features_idx, i, clip=1)
 
-        this_delta = logistic_aggregator.average(delta)
+        this_delta = model_aggregator.average(delta)
         
         # Krum
-        # this_delta = logistic_aggregator.krum(delta, clip=1)
+        # this_delta = model_aggregator.krum(delta, clip=1)
         
         weights = weights + this_delta
 
@@ -178,7 +175,7 @@ if __name__ == "__main__":
     numParams = numClasses * numFeatures
     dataPath = dataset + "/" + dataset
 
-    full_model = softmax_model_obj.SoftMaxModel(dataPath + "_train", 1, numClasses)
+    full_model = softmax_model_obj.SoftMaxModel(dataPath + "_train", numClasses)
     Xtest, ytest = full_model.get_data()
 
     models = []

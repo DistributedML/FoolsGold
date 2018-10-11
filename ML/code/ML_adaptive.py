@@ -2,8 +2,8 @@ from __future__ import division
 from numpy.linalg import norm
 import matplotlib.pyplot as plt
 import sklearn.metrics.pairwise as smp
-import logistic_aggregator
-import softmax_model
+
+import model_aggregator
 import softmax_model_test
 import softmax_model_obj
 import poisoning_compare
@@ -30,11 +30,9 @@ signal.signal(signal.SIGINT, debug_signal_handler)
 def basic_conv(dataset, num_params, softmax_test, iterations=3000):
 
     batch_size = 5
-    epsilon = 5
 
     # Global
-    # numFeatures = softmax_model.init(dataset, epsilon=epsilon)
-    softmax_model = softmax_model_obj.SoftMaxModel(dataset, epsilon, numClasses)
+    softmax_model = softmax_model_obj.SoftMaxModel(dataset, numClasses)
 
     print("Start training")
 
@@ -88,44 +86,31 @@ def rescaleOrthogonalNoise(noise, deltas):
 
 
 def getOrthogonalNoise2(numSybils, numParams):
+    
     numOrthoBasis = numSybils
-
     q, r = np.linalg.qr(np.random.rand(numParams, numOrthoBasis))
-    # q.T[:,0:784] = 0
-    # q.T[:,1568:5488] = 0
-    # q.T[:,6272:] = 0
+
     return q.T
-
-# def rescaleOrthogonalNoise(noise, deltas):
-#     # maximum norm of organic gradients
-#     maxNorm = np.max(np.linalg.norm(deltas, axis=1))
-#     n,d = noise.shape
-
-#     for i in range(n):
-#         noise[i] = noise[i] / (np.linalg.norm(noise[i]) / maxNorm)
-
-#     return noise
 
 # Variant of non_iid, where noise is added to poisoner_indices
 def non_iid(max_similarity, Xtest, ytest, from_class, to_class, model_names, numClasses, numParams, softmax_test, topk_prop, iterations=3000, numSybils=2,
     ideal_attack=False, poisoner_indices = []):
     numFeatures = int(numParams/numClasses)
     batch_size = 50
-    epsilon = 5
     topk = int(numParams / 2)
 
     list_of_models = []
 
     for dataset in model_names:
-        list_of_models.append(softmax_model_obj.SoftMaxModel(dataset, epsilon, numClasses))
+        list_of_models.append(softmax_model_obj.SoftMaxModel(dataset, numClasses))
 
     # Include the model that sends the ideal vector on each iteration
     if ideal_attack:
         list_of_models.append(softmax_model_obj.SoftMaxModelEvil(dataPath +
-           "_bad_ideal_4_9", 1, numClasses))
+           "_bad_ideal_4_9", numClasses))
 
     numClients = len(list_of_models)
-    logistic_aggregator.init(numClients, numParams, numClasses)
+    model_aggregator.init(numClients, numParams, numClasses)
 
     print("Start training across " + str(numClients) + " clients.")
 
@@ -191,8 +176,8 @@ def non_iid(max_similarity, Xtest, ytest, from_class, to_class, model_names, num
         summed_deltas = summed_deltas + delta
         
         # Use Foolsgold
-        this_delta = logistic_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, 1.0, importance=True, importanceHard=False)
-        # this_delta = logistic_aggregator.average(delta)
+        this_delta = model_aggregator.foolsgold(delta, summed_deltas, sig_features_idx, i, weights, 1.0, importance=True, importanceHard=False)
+        # this_delta = model_aggregator.average(delta)
         
         weights = weights + this_delta
 
@@ -205,9 +190,7 @@ def non_iid(max_similarity, Xtest, ytest, from_class, to_class, model_names, num
     print("Done iterations!")
     print("Train error: %d", softmax_test.train_error(weights))
     print("Test error: %d", softmax_test.test_error(weights))
-    # pdb.set_trace()
-    # import sklearn.metrics.pairwise as smp
-    # cs = smp.cosine_similarity(summed_deltas)
+
     return weights, numPoisonContribution / iterations
 
 
@@ -235,7 +218,7 @@ if __name__ == "__main__":
     numParams = numClasses * numFeatures
     dataPath = dataset + "/" + dataset
 
-    full_model = softmax_model_obj.SoftMaxModel(dataPath + "_train", 1, numClasses)
+    full_model = softmax_model_obj.SoftMaxModel(dataPath + "_train", numClasses)
     Xtest, ytest = full_model.get_data()
 
     models = []
@@ -277,16 +260,3 @@ if __name__ == "__main__":
             eval_data[num_trials*sim_i + eval_i] = [max_similarity, ratio, score[4]]
 
     np.savetxt('adaptive_attackrate.csv', eval_data, '%.5f', delimiter=",")
-    # # Sandbox: difference between ideal bad model and global model
-    # compare = False
-    # if compare:
-    #     bad_weights = basic_conv(dataPath + "_bad_ideal_" + from_class + "_" +
-    #        to_class, numParams, softmax_test)
-    #     poisoning_compare.eval(Xtest, ytest, bad_weights, int(from_class),
-    #         int(to_class), numClasses, numFeatures)
-
-    #     diff = np.reshape(bad_weights - weights, (numClasses, numFeatures))
-    #     abs_diff = np.reshape(np.abs(bad_weights - weights), (numClasses,
-    #        numFeatures))
-
-    pdb.set_trace()
