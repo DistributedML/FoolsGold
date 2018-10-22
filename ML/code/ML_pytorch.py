@@ -71,10 +71,11 @@ def non_iid(model_names, numClasses, numParams, iterations=3000,
     numParams = 31050
     train_client = Client("mnist", "mnist_train", batch_size, model(), dataset, transform)
     test_client = Client("mnist", "mnist_test", batch_size, model(), dataset, transform)
+    init_weights = train_client.getModelWeights()
 
     for dataset_name in model_names:
         list_of_models.append(Client("mnist", dataset_name, batch_size, model(), dataset, transform))
-
+        list_of_models[-1].updateModel(init_weights)
     # # Include the model that sends the ideal vector on each iteration
     # if ideal_attack:
     #     list_of_models.append(softmax_model_obj.SoftMaxModelEvil(dataPath +
@@ -138,11 +139,11 @@ def non_iid(model_names, numClasses, numParams, iterations=3000,
         ##################################
         # Use FoolsGold or something else
         ##################################
-
         # Use Foolsgold (can optionally clip gradients via Krum)
         weights = list_of_models[0].getModelWeights()
-        this_delta = model_aggregator.foolsgold(delta,
-           summed_deltas, sig_features_idx, i, weights, clip=0)
+        # this_delta = model_aggregator.foolsgold(delta,
+        #    summed_deltas, sig_features_idx, i, weights, clip=0)
+        this_delta = model_aggregator.average(delta)
         
         # Krum
         # this_delta = model_aggregator.krum(delta, clip=1)
