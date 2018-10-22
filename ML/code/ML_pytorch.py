@@ -57,103 +57,115 @@ def basic_conv(dataset, num_params, iterations=3000):
     return weights
 
 
-# def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
-#     ideal_attack=False):
+def non_iid(model_names, numClasses, numParams, iterations=3000,
+    ideal_attack=False):
 
-#     batch_size = 50
-#     memory_size = 0
+    batch_size = 50
+    memory_size = 0
 
-#     list_of_models = []
-#     model = MNISTCNNModel
-#     for dataset in model_names:
-#         list_of_models.append(Client("mnist", dataset, batch_size, model))
+    list_of_models = []
 
-#     # Include the model that sends the ideal vector on each iteration
-#     if ideal_attack:
-#         list_of_models.append(softmax_model_obj.SoftMaxModelEvil(dataPath +
-#            "_bad_ideal_4_9", numClasses))
+    transform = transforms.Compose([transforms.ToTensor()])
+    model = MNISTCNNModel
+    dataset = MNISTDataset
+    numParams = 31050
+    train_client = Client("mnist", "mnist_train", batch_size, model(), dataset, transform)
+    test_client = Client("mnist", "mnist_test", batch_size, model(), dataset, transform)
 
-#     numClients = len(list_of_models)
-#     model_aggregator.init(numClients, numParams, numClasses)
+    for dataset_name in model_names:
+        list_of_models.append(Client("mnist", dataset_name, batch_size, model(), dataset, transform))
 
-#     print("Start training across " + str(numClients) + " clients.")
+    # # Include the model that sends the ideal vector on each iteration
+    # if ideal_attack:
+    #     list_of_models.append(softmax_model_obj.SoftMaxModelEvil(dataPath +
+    #        "_bad_ideal_4_9", numClasses))
 
-#     weights = np.random.rand(numParams) / 100.0
-#     train_progress = []
+    numClients = len(list_of_models)
+    model_aggregator.init(numClients, numParams, numClasses)
 
-#     delta_memory = np.zeros((numClients, numParams, memory_size))
-#     summed_deltas = np.zeros((numClients, numParams))
+    print("Start training across " + str(numClients) + " clients.")
 
-#     for i in xrange(iterations):
+    # weights = np.random.rand(numParams) / 100.0
+    train_progress = []
 
-#         delta = np.zeros((numClients, numParams))
+    delta_memory = np.zeros((numClients, numParams, memory_size))
+    summed_deltas = np.zeros((numClients, numParams))
 
-#         ##################################
-#         # Use significant features filter or not
-#         ##################################
-#         topk = int(numParams / 2)
+    for i in xrange(iterations):
+
+        delta = np.zeros((numClients, numParams))
+
+        ##################################
+        # Use significant features filter or not
+        ##################################
+        topk = int(numParams / 2)
         
-#         # Significant features filter, the top k biggest weights
-#         # sig_features_idx = np.argpartition(weights, -topk)[-topk:]
-#         sig_features_idx = np.arange(numParams)
+        # Significant features filter, the top k biggest weights
+        # sig_features_idx = np.argpartition(weights, -topk)[-topk:]
+        sig_features_idx = np.arange(numParams)
 
-#         ##################################
-#         # Use annealing strategy or not
-#         ##################################
-#         if memory_size > 0:
+        ##################################
+        # Use annealing strategy or not
+        ##################################
+        if memory_size > 0:
 
-#             for k in range(len(list_of_models)):
+            for k in range(len(list_of_models)):
             
-#                 delta[k, :] = list_of_models[k].privateFun(1, weights,
-#                    batch_size)
+                delta[k, :] = list_of_models[k].getGrad()
 
-#                 # normalize delta
-#                 if np.linalg.norm(delta[k, :]) > 1:
-#                     delta[k, :] = delta[k, :] / np.linalg.norm(delta[k, :])
+                # normalize delta
+                if np.linalg.norm(delta[k, :]) > 1:
+                    delta[k, :] = delta[k, :] / np.linalg.norm(delta[k, :])
 
-#                 delta_memory[k, :, i % memory_size] = delta[k, :]
+                delta_memory[k, :, i % memory_size] = delta[k, :]
 
-#             # Track the total vector from each individual client
-#             summed_deltas = np.sum(delta_memory, axis=2)
+            # Track the total vector from each individual client
+            summed_deltas = np.sum(delta_memory, axis=2)
 
-#         else:
+        else:
 
-#             for k in range(len(list_of_models)):
+            for k in range(len(list_of_models)):
 
-#                 delta[k, :] = list_of_models[k].privateFun(1, weights, batch_size)
+                delta[k, :] = list_of_models[k].getGrad()
 
-#                 # normalize delta
-#                 if np.linalg.norm(delta[k, :]) > 1:
-#                     delta[k, :] = delta[k, :] / np.linalg.norm(delta[k, :])
+                # normalize delta
+                if np.linalg.norm(delta[k, :]) > 1:
+                    delta[k, :] = delta[k, :] / np.linalg.norm(delta[k, :])
 
-#             # Track the total vector from each individual client
-#             summed_deltas = summed_deltas + delta
+            # Track the total vector from each individual client
+            summed_deltas = summed_deltas + delta
         
-#         ##################################
-#         # Use FoolsGold or something else
-#         ##################################
+        ##################################
+        # Use FoolsGold or something else
+        ##################################
 
-#         # Use Foolsgold (can optionally clip gradients via Krum)
-#         this_delta = model_aggregator.foolsgold(delta,
-#            summed_deltas, sig_features_idx, i, weights, clip=0)
+        # Use Foolsgold (can optionally clip gradients via Krum)
+        weights = list_of_models[0].getModelWeights()
+        this_delta = model_aggregator.foolsgold(delta,
+           summed_deltas, sig_features_idx, i, weights, clip=0)
         
-#         # Krum
-#         # this_delta = model_aggregator.krum(delta, clip=1)
+        # Krum
+        # this_delta = model_aggregator.krum(delta, clip=1)
         
-#         # Krum
-#         # this_delta = model_aggregator.average(delta)
+        # Krum
+        # this_delta = model_aggregator.average(delta)
 
-#         weights = weights + this_delta
+        # Step in new gradient direction
+        for k in range(len(list_of_models)):
+            list_of_models[k].simpleStep(this_delta)
 
-#         if i % 200 == 0:
-#             error = softmax_test.train_error(weights)
-#             print("Train error: %.10f" % error)
-#             train_progress.append(error)
+        if i % 100 == 99:
+            train_client.updateModel(weights)
+            train_client.getGrad()
+            print("Train loss: %.10f" % train_client.getLoss())
 
-#     print("Done iterations!")
-#     print("Train error: %d", softmax_test.train_error(weights))
-#     print("Test error: %d", softmax_test.test_error(weights))
-#     return weights
+    print("Done iterations!")
+    train_client.updateModel(weights)
+    test_client.updateModel(weights)
+    print("Train error: %d", train_client.getTrainErr())
+    print("Test error: %d", test_client.getTrainErr()) 
+
+    return weights
 
 
 # amazon: 50 classes, 10000 features
@@ -178,7 +190,7 @@ if __name__ == "__main__":
         print("Dataset " + dataset + " not found. Available datasets: mnist kddcup amazon")
 
     numParams = numClasses * numFeatures
-    dataPath = dataset + "/" + dataset
+    dataPath = dataset
 
     # full_model = softmax_model_obj.SoftMaxModel(dataPath + "_train", numClasses)
     # Xtest, ytest = full_model.get_data()
@@ -203,9 +215,8 @@ if __name__ == "__main__":
                 models.append(dataPath + "_bad_" + from_class + "_" + to_class)
 
         
-        # weights = non_iid(models, numClasses, numParams, softmax_test,
-        #     iterations, ideal_attack=False)
-        weights = basic_conv(dataset, numParams, iterations=3000)
+        weights = non_iid(models, numClasses, numParams, iterations, ideal_attack=False)
+        # weights = basic_conv(dataset, numParams, iterations=3000)
 
         # for attack in argv[2:]:
         #     attack_delim = attack.split("_")
@@ -213,7 +224,7 @@ if __name__ == "__main__":
         #     to_class = attack_delim[2]
         #     score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures)
         #     eval_data[run] = score
-
+    pdb.set_trace()
     # Sandbox: difference between ideal bad model and global model
     compare = False
     if compare:
