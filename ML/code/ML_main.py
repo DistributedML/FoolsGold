@@ -39,7 +39,7 @@ def basic_conv(dataset, num_params, softmax_test, iterations=3000):
     test_progress = np.zeros(iterations)
 
     for i in xrange(iterations):
-        deltas = softmax_model.privateFun(1, weights, batch_size)
+        deltas = softmax_model.privateFun(weights, batch_size=batch_size)
         weights = weights + deltas
 
         if i % 100 == 0:
@@ -54,8 +54,14 @@ def basic_conv(dataset, num_params, softmax_test, iterations=3000):
 def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
     ideal_attack=False):
 
+    # SGD batch size
     batch_size = 50
+
+    # The number of previous iterations to use FoolsGold on
     memory_size = 0
+
+    # The number of local steps each client takes
+    fed_avg_size = 5
 
     list_of_models = []
 
@@ -92,14 +98,14 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
         sig_features_idx = np.arange(numParams)
 
         ##################################
-        # Use annealing strategy or not
+        # Use history or not
         ##################################
         if memory_size > 0:
 
             for k in range(len(list_of_models)):
             
-                delta[k, :] = list_of_models[k].privateFun(1, weights,
-                   batch_size)
+                delta[k, :] = list_of_models[k].privateFun(weights,
+                   batch_size=batch_size, num_iterations=fed_avg_size)
 
                 # normalize delta
                 if np.linalg.norm(delta[k, :]) > 1:
@@ -114,7 +120,8 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
 
             for k in range(len(list_of_models)):
 
-                delta[k, :] = list_of_models[k].privateFun(1, weights, batch_size)
+                delta[k, :] = list_of_models[k].privateFun(weights, 
+                    batch_size=batch_size, num_iterations=fed_avg_size)
 
                 # normalize delta
                 if np.linalg.norm(delta[k, :]) > 1:
@@ -134,7 +141,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
         # Krum
         # this_delta = model_aggregator.krum(delta, clip=1)
         
-        # Krum
+        # Simple Average
         # this_delta = model_aggregator.average(delta)
 
         weights = weights + this_delta

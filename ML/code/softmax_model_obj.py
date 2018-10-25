@@ -58,27 +58,46 @@ class SoftMaxModel:
 
         return f, g.flatten()
 
-    # Reports the direct change to w, based on the given one.
-    # Batch size could be 1 for SGD, or 0 for full gradient.
-    def privateFun(self, theta, ww, batch_size=0):
 
+    def privateFun(self, ww, batch_size=0, num_iterations=1):
+        
+        '''
+        Reports the direct change to be applied, based on the given model.
+        Batch size could be 1 for SGD, or 0 for full gradient.
+        Specify the number of iterations for batching multiple iterations as in FEDAVG
+        '''
+
+        # Take the total gradient locally over multiple iterations
         ww = np.array(ww)
+        total_delta = np.zeros(ww.shape[0])
 
-        # Define constants and params
-        nn, dd = self.X.shape
+        for it in range(num_iterations):
 
-        if batch_size > 0 and batch_size < nn:
-            idx = np.random.choice(nn, batch_size, replace=False)
-        else:
-            # Just take the full range
-            idx = range(nn)
+            # Define constants and params
+            nn, dd = self.X.shape
 
-        f, g = self.funObj(ww, self.X[idx, :], self.y[idx], batch_size)
-        delta = -alpha * g
+            if batch_size > 0 and batch_size < nn:
+                idx = np.random.choice(nn, batch_size, replace=False)
+            else:
+                # Just take the full range
+                idx = range(nn)
 
-        return delta
+            f, g = self.funObj(ww, self.X[idx, :], self.y[idx], batch_size)
+            delta = -alpha * g
+
+        ww = ww + delta
+        total_delta = total_delta + delta
+
+        return total_delta
+
+
 
 class SoftMaxModelEvil(SoftMaxModel):
+
+    '''
+    A softmax model that conforms to the API, 
+    but actually just sends the vector to the optimal poisoning model
+    '''
 
     def __init__(self, dataset, numClasses):
 
