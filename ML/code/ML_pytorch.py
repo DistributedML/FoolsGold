@@ -31,14 +31,14 @@ def basic_conv(dataset, num_params, iterations=3000):
     # Global
     model = MNISTCNNModel
     dataset = MNISTDataset
-    # transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize([0.5], [0.5])]) # For single channel
-    transform = transforms.Compose([transforms.ToTensor()])
+    transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize([0.5], [0.5])]) # For single channel
+    # transform = transforms.Compose([transforms.ToTensor()])
     client = Client("mnist", "mnist_train", batch_size, model(), dataset, transform)
     test_client = Client("mnist", "mnist_test", batch_size, model(), dataset, transform)
     print("Start training")
 
     # weights = np.random.rand(31050) / 10
-    weights = np.zeros(31050)
+    weights = np.zeros(41386)
     # client.updateModel(weights)
     train_progress = np.zeros(iterations)
     test_progress = np.zeros(iterations)
@@ -68,7 +68,7 @@ def non_iid(model_names, numClasses, numParams, iterations=3000,
     transform = transforms.Compose([transforms.ToTensor()])
     model = MNISTCNNModel
     dataset = MNISTDataset
-    numParams = 31050
+    numParams = 41386
     train_client = Client("mnist", "mnist_train", batch_size, model(), dataset, transform)
     test_client = Client("mnist", "mnist_test", batch_size, model(), dataset, transform)
     init_weights = train_client.getModelWeights()
@@ -141,9 +141,9 @@ def non_iid(model_names, numClasses, numParams, iterations=3000,
         ##################################
         # Use Foolsgold (can optionally clip gradients via Krum)
         weights = list_of_models[0].getModelWeights()
-        # this_delta = model_aggregator.foolsgold(delta,
-        #    summed_deltas, sig_features_idx, i, weights, clip=0)
-        this_delta = model_aggregator.average(delta)
+        this_delta = model_aggregator.foolsgold(delta,
+           summed_deltas, sig_features_idx, i, weights, clip=0)
+        # this_delta = model_aggregator.average(delta)
         
         # Krum
         # this_delta = model_aggregator.krum(delta, clip=1)
@@ -155,10 +155,12 @@ def non_iid(model_names, numClasses, numParams, iterations=3000,
         for k in range(len(list_of_models)):
             list_of_models[k].simpleStep(this_delta)
 
-        if i % 100 == 99:
-            train_client.updateModel(weights)
-            train_client.getGrad()
-            print("Train loss: %.10f" % train_client.getLoss())
+        
+        if i % 20 == 0:
+            loss = 0.0
+            for i in range(10):
+                loss += list_of_models[i].getLoss()
+            print("Average loss is " + str(loss / len(list_of_models)))
 
     print("Done iterations!")
     train_client.updateModel(weights)
