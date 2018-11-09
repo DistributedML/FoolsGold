@@ -17,15 +17,11 @@ class SoftMaxModel:
         data = utils.load_dataset(dataset, npy=True)
 
         self.X = data['X']
-
         self.y = data['y']
         self.n_classes = numClasses
         self.d = self.X.shape[1] * self.n_classes
         self.samples = []
         self.lammy = 0.01
-
-        def lnprob(x, alpha):
-            return -(alpha / 2) * np.linalg.norm(x)
 
     def get_data(self):
         return self.X, self.y
@@ -43,14 +39,14 @@ class SoftMaxModel:
         # Calculate the function value
         f = - np.sum(XW[y_binary] - logsumexp(XW))
         
-        # Calculate the gradient value
-        mval = np.max(XW)
-        XW = XW - mval
+        # Prevents overflow
+        XW = XW - np.max(XW) 
         Z = np.sum(np.exp(XW), axis=1)
         v = np.exp(XW) / Z[:, None]
         v[np.isnan(v)] = 0
         res = np.dot((v - y_binary).T, Xbatch)
 
+        # Calculate the gradient value
         g = (1 / batch_size) * res + self.lammy * W
         
         if True in np.isnan(g):
@@ -90,6 +86,38 @@ class SoftMaxModel:
 
         return total_delta
 
+class SoftMaxModelHuber(SoftMaxModel):
+
+    '''
+    A softmax model that uses a robust loss (Huber)
+    '''
+    def funObj(self, ww, Xbatch, ybatch, batch_size):
+        n, d = Xbatch.shape
+
+        W = np.reshape(ww, (self.n_classes, d))
+
+        y_binary = np.zeros((n, self.n_classes)).astype(bool)
+        y_binary[np.arange(n), ybatch.astype(int)] = 1
+
+        XW = np.dot(Xbatch, W.T)
+        
+        # Calculate the function value
+        f = - np.sum(XW[y_binary] - logsumexp(XW))
+        
+        # Prevents overflow
+        XW = XW - np.max(XW) 
+        Z = np.sum(np.exp(XW), axis=1)
+        v = np.exp(XW) / Z[:, None]
+        v[np.isnan(v)] = 0
+        res = np.dot((v - y_binary).T, Xbatch)
+
+        # Calculate the gradient value
+        g = (1 / batch_size) * res + self.lammy * W
+        
+        if True in np.isnan(g):
+            pdb.set_trace()
+
+        return f, g.flatten()
 
 
 class SoftMaxModelEvil(SoftMaxModel):

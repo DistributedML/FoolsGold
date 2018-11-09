@@ -59,8 +59,10 @@ def main():
     print("Test Err: " + str(test_error))
 
 
-def slice_for_tm():
-
+def slice_federated():
+    '''
+    Each file contains one of the 10 classes
+    '''
     mndata = MNIST('.')
 
     images, labels = mndata.load_training()
@@ -106,7 +108,62 @@ def slice_for_tm():
     np.save("mnist_test", test_slice)
 
 
-def slice_for_iid(nclassesper):
+def slice_uniform(numSplits):
+    '''
+    Each file contains a horizontal partition of the dataset
+    '''
+    mndata = MNIST('.')
+
+    images, labels = mndata.load_training()
+    images_test, labels_test = mndata.load_testing()
+
+    n = len(images)
+    d = len(images[0])
+    t = len(images_test)
+
+    Xtrain = np.zeros((n, d))
+    Xtest = np.zeros((t, d))
+
+    ytrain = np.asarray(labels)
+    ytest = np.asarray(labels_test)
+
+    for i in range(n):
+        Xtrain[i, :] = np.asarray(images[i])
+
+    for q in range(t):
+        Xtest[q, :] = np.asarray(images_test[q])
+
+    # standardize each column
+    print("Standardize columns")
+    Xtrain = Xtrain / 100.0
+
+    randseed = np.random.permutation(n)
+    Xtrain = Xtrain[randseed, :]
+    ytrain = ytrain[randseed]
+
+    numRows = int(n / numSplits)
+
+    for i in range(numSplits):
+        
+        dataslice = np.hstack((Xtrain[(i * numRows):((i + 1) * numRows), :],
+                        ytrain[(i * numRows):((i + 1) * numRows)].reshape((numRows, 1))))
+        
+        print("slice " + str(i) + " is shape " + str(dataslice.shape))
+
+        np.save("mnist_uniform_" + str(i), dataslice)
+
+    train_slice = np.hstack((Xtrain, np.reshape(ytrain, (len(ytrain), 1))))
+    np.save("mnist_train", train_slice)
+
+    test_slice = np.hstack((Xtest, np.reshape(ytest, (len(ytest), 1))))
+    np.save("mnist_test", test_slice)
+
+
+def slice_classmix(nclassesper):
+    '''
+    Each file contains multiple classes
+    nclassesper - number of classes to include per file
+    '''
 
     mndata = MNIST('.')
 
@@ -182,4 +239,5 @@ def standardize_cols(X, mu=None, sigma=None):
 
 if __name__ == "__main__":
 
-    slice_for_tm()
+    slice_federated()
+    slice_uniform(10)

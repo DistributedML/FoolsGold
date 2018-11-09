@@ -11,6 +11,7 @@ Takes input
 '''
 
 def main(argv):
+    
     dataset = argv[0]
     dir = "data/" + dataset + "/"
     fp = dir + dataset + "_train.npy"
