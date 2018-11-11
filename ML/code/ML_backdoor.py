@@ -51,7 +51,7 @@ def basic_conv(dataset, num_params, softmax_test, iterations=3000):
     return weights
 
 
-def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
+def non_iid(model_names, numClasses, numParams, softmax_test, krum_clip=1, iterations=3000,
     ideal_attack=False):
 
     # SGD batch size
@@ -140,10 +140,13 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
         #     sig_features_idx, i, weights, clip=0)
         
         # Krum
-        # this_delta = model_aggregator.krum(delta, clip=1)
+        if krum_clip == 0:
+            this_delta = model_aggregator.average(delta)
+        else:
+            this_delta = model_aggregator.krum(delta, clip=krum_clip)
         
         # Simple Average
-        this_delta = model_aggregator.average(delta)
+        # this_delta = model_aggregator.average(delta)
 
         weights = weights + this_delta
 
@@ -207,7 +210,7 @@ if __name__ == "__main__":
             softmax_test = softmax_model_test.SoftMaxModelTest(dataset, numClasses, numFeatures)
             
             weights = non_iid(models, numClasses, numParams, softmax_test,
-                iterations, ideal_attack=False)
+                iterations=iterations, krum_clip=sybil_count, ideal_attack=False)
 
             score = poisoning_compare.backdoor_eval(Xback, yback, weights, int(to_class), numClasses, numFeatures)
             backdoor_eval_data[sybil_count] = score

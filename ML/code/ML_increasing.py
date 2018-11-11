@@ -51,7 +51,7 @@ def basic_conv(dataset, num_params, softmax_test, iterations=3000):
     return weights
 
 
-def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
+def non_iid(model_names, numClasses, numParams, softmax_test, krum_clip=1, iterations=3000,
     ideal_attack=False):
 
     # SGD batch size
@@ -136,14 +136,17 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
         ##################################
 
         # Use Foolsgold (can optionally clip gradients via Krum)
-        this_delta = model_aggregator.foolsgold(delta, summed_deltas, 
-            sig_features_idx, i, weights, clip=0)
+        # this_delta = model_aggregator.foolsgold(delta, summed_deltas, 
+        #     sig_features_idx, i, weights, clip=0)
         
         # Krum
-        # this_delta = model_aggregator.krum(delta, clip=1)
+        # if krum_clip == 0:
+        #     this_delta = model_aggregator.average(delta)
+        # else:
+        #     this_delta = model_aggregator.krum(delta, clip=krum_clip)
         
         # Simple Average
-        # this_delta = model_aggregator.average(delta)
+        this_delta = model_aggregator.average(delta)
 
         weights = weights + this_delta
 
@@ -188,51 +191,31 @@ if __name__ == "__main__":
     backdoor_model = softmax_model_obj.SoftMaxModel(dataPath + "_backdoor_test", numClasses)
     Xback, yback = backdoor_model.get_data()
 
-    models = []
+    for run in range(5):
 
-    for i in range(numClasses):
-        # Try a little more IID
-        models.append(dataPath + str(i))
+        eval_data = np.zeros((10, 5))
+        
+        for sybil_count in range(10):
 
-    for attack in argv[2:]:
-        attack_delim = attack.split("_")
-        sybil_set_size = attack_delim[0]
-        from_class = attack_delim[1]
-        to_class = attack_delim[2]
+            models = []
 
-        if from_class == "b":
-            for i in range(int(sybil_set_size)):
-                models.append(dataPath + "_backdoor_" + to_class)
-        else:
-            for i in range(int(sybil_set_size)):
-                models.append(dataPath + "_bad_" + from_class + "_" + to_class)
+            for i in range(numClasses):
+                models.append(dataPath + str(i))
 
-    softmax_test = softmax_model_test.SoftMaxModelTest(dataset, numClasses, numFeatures)
-    
-    weights = non_iid(models, numClasses, numParams, softmax_test,
-        iterations, ideal_attack=False)
+            for attack in argv[2:]:
+                attack_delim = attack.split("_")
+                from_class = attack_delim[0]
+                to_class = attack_delim[1]
 
-    if from_class == "b":
-        attack_delim = attack.split("_")
-        from_class = attack_delim[1]
-        to_class = attack_delim[2]
-        score = poisoning_compare.backdoor_eval(Xback, yback, weights, int(to_class), numClasses, numFeatures)
+                for i in range(sybil_count):
+                    models.append(dataPath + "_bad_" + from_class + "_" + to_class)
 
-    else:
-        for attack in argv[2:]:
-            attack_delim = attack.split("_")
-            from_class = attack_delim[1]
-            to_class = attack_delim[2]
+            softmax_test = softmax_model_test.SoftMaxModelTest(dataset, numClasses, numFeatures)
+        
+            weights = non_iid(models, numClasses, numParams, softmax_test,
+                iterations=iterations, krum_clip=sybil_count, ideal_attack=False)
+
             score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures)
+            eval_data[sybil_count] = score
 
-    # Sandbox: difference between ideal bad model and global model
-    compare = False
-    if compare:
-        bad_weights = basic_conv(dataPath + "_bad_ideal_" + from_class + "_" +
-           to_class, numParams, softmax_test)
-        poisoning_compare.eval(Xtest, ytest, bad_weights, int(from_class),
-            int(to_class), numClasses, numFeatures)
-
-        diff = np.reshape(bad_weights - weights, (numClasses, numFeatures))
-        abs_diff = np.reshape(np.abs(bad_weights - weights), (numClasses,
-           numFeatures))
+        np.savetxt("label_fed_" + str(run) + ".csv", eval_data, fmt='%.5f', delimiter=',')
