@@ -58,7 +58,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, krum_clip=1, itera
     batch_size = 50
 
     # The number of local steps each client takes
-    fed_avg_size = 1
+    fed_avg_size = 10
 
     list_of_models = []
 
@@ -136,14 +136,14 @@ def non_iid(model_names, numClasses, numParams, softmax_test, krum_clip=1, itera
         ##################################
 
         # Use Foolsgold (can optionally clip gradients via Krum)
-        # this_delta = model_aggregator.foolsgold(delta, summed_deltas, 
-        #     sig_features_idx, i, weights, clip=0)
+        this_delta = model_aggregator.foolsgold(delta, summed_deltas, 
+            sig_features_idx, i, weights, clip=0)
         
         # Krum
-        if krum_clip == 0:
-            this_delta = model_aggregator.average(delta)
-        else:
-            this_delta = model_aggregator.krum(delta, clip=krum_clip)
+        # if krum_clip == 0:
+        #     this_delta = model_aggregator.average(delta)
+        # else:
+        #     this_delta = model_aggregator.krum(delta, clip=krum_clip)
         
         # Simple Average
         # this_delta = model_aggregator.average(delta)
@@ -215,7 +215,7 @@ if __name__ == "__main__":
             score = poisoning_compare.backdoor_eval(Xback, yback, weights, int(to_class), numClasses, numFeatures)
             backdoor_eval_data[sybil_count] = score
 
-        np.savetxt("backdoor_fed_" + str(run) + ".csv", backdoor_eval_data, fmt='%.5f', delimiter=',')
+        np.savetxt("backdoor_fgavg_" + str(run) + ".csv", backdoor_eval_data, fmt='%.5f', delimiter=',')
 
     # Sandbox: difference between ideal bad model and global model
     compare = False

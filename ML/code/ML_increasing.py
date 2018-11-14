@@ -58,7 +58,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, krum_clip=1, itera
     batch_size = 50
 
     # The number of local steps each client takes
-    fed_avg_size = 1
+    fed_avg_size = 10
 
     list_of_models = []
 
@@ -136,8 +136,8 @@ def non_iid(model_names, numClasses, numParams, softmax_test, krum_clip=1, itera
         ##################################
 
         # Use Foolsgold (can optionally clip gradients via Krum)
-        # this_delta = model_aggregator.foolsgold(delta, summed_deltas, 
-        #     sig_features_idx, i, weights, clip=0)
+        this_delta = model_aggregator.foolsgold(delta, summed_deltas, 
+            sig_features_idx, i, weights, clip=0)
         
         # Krum
         # if krum_clip == 0:
@@ -146,11 +146,11 @@ def non_iid(model_names, numClasses, numParams, softmax_test, krum_clip=1, itera
         #     this_delta = model_aggregator.krum(delta, clip=krum_clip)
         
         # Simple Average
-        this_delta = model_aggregator.average(delta)
+        # this_delta = model_aggregator.average(delta)
 
         weights = weights + this_delta
 
-        if i % 200 == 0:
+        if i % 20 == 0:
             error = softmax_test.train_error(weights)
             print("Train error: %.10f" % error)
             train_progress.append(error)

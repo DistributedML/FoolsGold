@@ -160,6 +160,8 @@ def get_krum_scores(X, groupsize):
     for i in range(len(X)):
         krum_scores[i] = np.sum(np.sort(distances[i])[1:(groupsize - 1)])
 
+    pdb.set_trace()
+
     return krum_scores
 
 
