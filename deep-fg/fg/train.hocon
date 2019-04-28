@@ -1,0 +1,33 @@
+# ------------- general options ----------------------------------------
+save_path = "/home/chris/deep_fg/save/" # log path
+data_path = "/bigdata/vggface2/" # path for dataset folder, containing cifar10 and imagenet
+dataset = "vggface2"  # options: vggface2 | cifar10
+seed = 1  # manually set RNG seed
+gpu = "0"  # GPU id to use, e.g. "0,1,2,3"
+print_freq = 10 
+
+# ------------- data options -------------------------------------------
+num_workers = 6  # number of threads used for data loading
+
+# ------------- common optimization options ----------------------------
+opt = "sgd"
+batch_size = 8  # mini-batch size of gpu
+desired_bs = 8 # actually computed batch size
+momentum = 0.9  # momentum
+weight_decay = 0.0001 # weight decay
+lr = 0.001   # learning rate
+epochs = 200 # number of epochs to train
+lr_step = [10,20,30] # epochs to reduce lr
+
+# ------------- model options ------------------------------------------
+arch_type = "vgg" # options: vgg | resnet | lenet
+arch_depth = 11
+experiment_id = "vggface_train"  # experiment identifier
+n_classes = 5  # number of classes in the dataset
+pretrained = True
+
+# ------------- resume or retrain options ------------------------------
+retrain = ""
+resume = ""
+
+# ---------- dataset options -------------------------------------------
