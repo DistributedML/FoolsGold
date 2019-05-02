@@ -301,6 +301,7 @@ class FedTrainer(object):
 
     def aggregate_gradients(self, client_grads):
         num_clients = len(client_grads)
+        pdb.set_trace()
         grad_len = np.array(client_grads[0][-2].cpu().data.numpy().shape).prod()
         if self.memory is None:
             self.memory = np.zeros((num_clients, grad_len))

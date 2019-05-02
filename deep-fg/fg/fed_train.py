@@ -28,16 +28,14 @@ from models.lenet import LeNet
 
 def get_model(option):
     arch = option.arch_type + str(option.arch_depth)
-    # if option.arch_type == "lenet":
-    #     model = LeNet()
-    #     model = model.cuda()
-    #     return model
+
     if option.arch_type == "squeeze":
         # model = models.__dict__["squeezenet1_1"](num_classes=option.n_classes)
         model = models.__dict__["squeezenet1_1"](pretrained=option.pretrained)
         model.classifier[1] = nn.Conv2d(512, option.n_classes, kernel_size=(1,1), stride=(1,1))
         model.num_classes = option.n_classes
         model = model.cuda()
+        print(sum(p.numel() for p in model.parameters() if p.requires_grad))
         return model
 
     if option.dataset == "vggface2":

@@ -24,7 +24,7 @@ lr_step = [10,20,30] # epochs to reduce lr
 arch_type = "squeeze" # options: vgg | resnet | lenet | squeeze
 arch_depth = 11
 experiment_id = "vggface_train"  # experiment identifier
-n_classes = 5  # number of classes in the dataset
+n_classes = 10  # number of classes in the dataset
 pretrained = True
 
 # ------------- resume or retrain options ------------------------------
@@ -32,6 +32,6 @@ retrain = ""
 resume = ""
 
 # ---------- foolsgold options -------------------------------------------
-num_sybils = 20
+num_sybils = 5
 use_fg = True
 use_memory = True
