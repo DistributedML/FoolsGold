@@ -8,6 +8,7 @@ import os
 import utils 
 import numpy as np
 import pandas as pd
+import math
 import sys
 sys.path.append("../")
 
@@ -73,7 +74,7 @@ def get_train_val_sampler(option, trainset, valid_size=0.3):
     val_sampler = SubsetRandomSampler(valid_idx)
     return train_sampler, val_sampler
 
-def get_loader(option):
+def get_loader(option, iid=[.0, .0]):
     client_loaders = []
     sybil_loaders = []
     if option.dataset == "vggface2":
@@ -110,8 +111,30 @@ def get_loader(option):
         for i in range(len(num_clients)):
             n_client_per_class = num_clients[i]
             for c in range(n_client_per_class):
-                # df = train_df.reset_index() # clients have iid data
-                df = train_df[train_df['idx'] == i].reset_index() # Clients have non-iid data
+
+                """
+                N_iid / (N_s + N_iid) = x
+                If iid=0, 100% single class + 0% Entire dataset P(y_i = i) = 1.0
+                If iid=x, (100 - x)% single class + x% Entire dataset 
+                If iid=100, 0% single class + 100% Entire dataset P(y_i = i) = 1/num_classes
+                """
+                if iid[0] == 1.0:
+                    df = train_df.reset_index() # clients have iid data                
+                elif iid[0] == 0.0:
+                    df = train_df[train_df['idx'] == i].reset_index() # Clients have non-iid data
+                else:
+                    class_df = train_df[train_df['idx'] == i]
+                    N_s = len(class_df)
+                    N_iid = N_s * iid[0]/(1 - iid[0])
+                    noniid_df = train_df
+
+                    if len(noniid_df) < N_iid:
+                        factor = math.ceil(N_iid / len(noniid_df)) - 1 # Factor is guaranteed to be >= 1
+                        noniid_df = noniid_df.append([noniid_df]*factor, ignore_index=True)
+                        noniid_df = noniid_df.sample(n=int(N_iid))
+                    else:
+                        noniid_df = noniid_df.sample(n=int(N_iid))
+                    df = class_df.append(noniid_df, ignore_index=True).reset_index()
 
                 clientset = VGG_Face2(df, datadir, train_transform)
                 client_loader = torch.utils.data.DataLoader(clientset, batch_size=option.batch_size,
@@ -157,7 +180,7 @@ def get_loader(option):
     return train_loader, val_loader, test_loader, client_loaders, sybil_loaders
 
 
-def train(option):
+def train(option, iid=[.0, .0]):
     model = get_model(option)
 
     criterion = nn.CrossEntropyLoss().cuda()
@@ -167,9 +190,8 @@ def train(option):
     # optimizer = torch.optim.Adam(params=model.parameters(), lr=option.lr)
     
     cudnn.benchmark = True
-
     # client loaders is the train loaders for every client
-    train_loader, val_loader, test_loader, client_loaders, sybil_loaders = get_loader(option)    
+    train_loader, val_loader, test_loader, client_loaders, sybil_loaders = get_loader(option, iid)    
 
     trainer = FedTrainer(option, model, train_loader, val_loader, test_loader, optimizer, criterion, client_loaders, sybil_loaders)
     trainer.train()
@@ -183,8 +205,7 @@ def main():
     args = parser.parse_args()
 
     option = Option(args.conf_path)
-
-    train(option)
+    train(option, iid=[.25, .25])
 
 if __name__ == "__main__":
     main()
