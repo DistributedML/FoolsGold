@@ -28,16 +28,33 @@ from torch.utils.data.sampler import SubsetRandomSampler
 
 def get_model(option):
     arch = option.arch_type + str(option.arch_depth)
+    # if option.arch_type == "lenet":
+    #     model = LeNet()
+    #     model = model.cuda()
+    #     return model
+    if option.arch_type == "squeeze":
+        model = models.__dict__["squeezenet1_1"](num_classes=option.n_classes)
+        # model.classifier[1] = nn.Conv2d(512, option.n_classes, kernel_size=(1,1), stride=(1,1))
+        model = model.cuda()
+        return model
+
     if option.dataset == "vggface2":
         if option.pretrained:
             print("=> using pre-trained model '{}'".format(arch))
-            model = models.__dict__[arch](pretrained=option.pretrained).cuda()
+            model = models.__dict__[arch](pretrained=option.pretrained)
+            if option.arch_type == "resnet":
+                model.fc = nn.Linear(model.fc.in_features, option.n_classes, bias=True)
+            elif option.arch_type == "vgg":
+                model.classifier[6] = nn.Linear(model.classifier[6].in_features, option.n_classes, bias=True)
+
+            model = model.cuda()
         else:
             print("=> creating model '{}'".format(arch))
             model = models.__dict__[arch]().cuda()
     else:
         print("Invalid dataset")
         assert False
+    print(sum(p.numel() for p in model.parameters() if p.requires_grad))
     return model
 
 def get_train_val_sampler(option, trainset, valid_size=0.3):
@@ -109,7 +126,7 @@ def train(option):
 
     train_loader, val_loader, test_loader = get_loader(option)    
 
-    trainer = FedTrainer(option, model, train_loader, val_loader, test_loader, optimizer, criterion)
+    trainer = BaseTrainer(option, model, train_loader, val_loader, test_loader, optimizer, criterion)
     trainer.train()
     # trainer.validate()
     pdb.set_trace()

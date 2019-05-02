@@ -32,6 +32,13 @@ def get_model(option):
     #     model = LeNet()
     #     model = model.cuda()
     #     return model
+    if option.arch_type == "squeeze":
+        # model = models.__dict__["squeezenet1_1"](num_classes=option.n_classes)
+        model = models.__dict__["squeezenet1_1"](pretrained=option.pretrained)
+        model.classifier[1] = nn.Conv2d(512, option.n_classes, kernel_size=(1,1), stride=(1,1))
+        model.num_classes = option.n_classes
+        model = model.cuda()
+        return model
 
     if option.dataset == "vggface2":
         if option.pretrained:
@@ -101,13 +108,12 @@ def get_loader(option):
         val_df = new_val_df
 
         num_clients = [1]*option.n_classes
-        num_sybils = 5 # for now, 0 to 1 attack
         # Add honest clients
         for i in range(len(num_clients)):
             n_client_per_class = num_clients[i]
             for c in range(n_client_per_class):
-                df = train_df.reset_index() # clients have iid data
-                # df = train_df[train_df['idx'] == i].reset_index() # Clients have non-iid data
+                # df = train_df.reset_index() # clients have iid data
+                df = train_df[train_df['idx'] == i].reset_index() # Clients have non-iid data
 
                 clientset = VGG_Face2(df, datadir, train_transform)
                 client_loader = torch.utils.data.DataLoader(clientset, batch_size=option.batch_size,
@@ -116,14 +122,14 @@ def get_loader(option):
                 client_loaders.append(client_loader)
         
         # Add sybils
-        for i in range(num_sybils):
+        for i in range(option.num_sybils):
             df = train_df[train_df['idx'] == 0].reset_index() # Sybils have non-iid data
             # label flip
             df['idx'] = 1
 
-            df = train_df.copy() # Sybils have iid data
-            df.loc[df['idx'] == 0, "idx"] = 1            
-            df = df.reset_index()
+            # df = train_df.copy() # Sybils have iid data
+            # df.loc[df['idx'] == 0, "idx"] = 1            
+            # df = df.reset_index()
 
             clientset = VGG_Face2(df, datadir, train_transform)
             client_loader = torch.utils.data.DataLoader(clientset, batch_size=option.batch_size,
@@ -160,6 +166,7 @@ def train(option):
     optimizer = torch.optim.SGD(model.parameters(), option.lr,
         momentum=option.momentum, 
         weight_decay=option.weight_decay)
+    # optimizer = torch.optim.Adam(params=model.parameters(), lr=option.lr)
     
     cudnn.benchmark = True
 

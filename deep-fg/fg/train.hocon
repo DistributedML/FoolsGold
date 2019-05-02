@@ -19,8 +19,9 @@ lr = 0.001   # learning rate
 epochs = 200 # number of epochs to train
 lr_step = [10,20,30] # epochs to reduce lr
 
+
 # ------------- model options ------------------------------------------
-arch_type = "vgg" # options: vgg | resnet | lenet
+arch_type = "squeeze" # options: vgg | resnet | lenet | squeeze
 arch_depth = 11
 experiment_id = "vggface_train"  # experiment identifier
 n_classes = 5  # number of classes in the dataset
@@ -30,4 +31,7 @@ pretrained = True
 retrain = ""
 resume = ""
 
-# ---------- dataset options -------------------------------------------
+# ---------- foolsgold options -------------------------------------------
+num_sybils = 20
+use_fg = True
+use_memory = True

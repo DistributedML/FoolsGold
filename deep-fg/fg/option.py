@@ -42,5 +42,7 @@ class Option(object):
         # path to directory containing checkpoint, load state_dicts of model and optimizer, as well as training epoch
         self.resume = None if len(self.conf['resume']) == 0 else self.conf['resume']
 
-        # ---------- dataset options -------------------------------------------
-        self.dataset = self.conf['dataset']
+        # ---------- foolsgold options -------------------------------------------
+        self.num_sybils = self.conf['num_sybils']
+        self.use_fg = self.conf['use_fg']
+        self.use_memory = self.conf['use_memory']

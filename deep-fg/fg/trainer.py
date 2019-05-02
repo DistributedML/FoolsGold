@@ -200,6 +200,7 @@ class FedTrainer(object):
                                                                 'columnnames': list(range(option.n_classes)),
                                                                 'rownames': list(range(option.n_classes))})
 
+        self.memory = None
         self.client_loaders = client_loaders
         self.sybil_loaders = sybil_loaders
 
@@ -300,13 +301,25 @@ class FedTrainer(object):
 
     def aggregate_gradients(self, client_grads):
         num_clients = len(client_grads)
-        grads = np.zeros((num_clients, 20480))
-        for i in range(len(client_grads)):
-            grads[i] = np.reshape(client_grads[i][-2].cpu().data.numpy(), (20480))
+        grad_len = np.array(client_grads[0][-2].cpu().data.numpy().shape).prod()
+        if self.memory is None:
+            self.memory = np.zeros((num_clients, grad_len))
         
-        # wv = fg.foolsgold(grads) # Use FG
-        wv = np.ones(num_clients) # Don't use FG
-        agg_grads = []
+        grads = np.zeros((num_clients, grad_len))
+        for i in range(len(client_grads)):
+            grads[i] = np.reshape(client_grads[i][-2].cpu().data.numpy(), (grad_len))
+        self.memory += grads
+
+        if self.option.use_fg:
+            if self.option.use_memory:
+                wv = fg.foolsgold(self.memory) # Use FG
+            else:
+                wv = fg.foolsgold(grads) # Use FG
+        else:
+            # wv = fg.foolsgold(grads) # Use FG w/o memory
+            wv = np.ones(num_clients) # Don't use FG
+        print(wv)
+        agg_grads = []  
         # Iterate through each layer
         for i in range(len(client_grads[0])):
             temp = wv[0] * client_grads[0][i].cpu().clone()
