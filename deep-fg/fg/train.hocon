@@ -16,7 +16,7 @@ desired_bs = 8 # actually computed batch size
 momentum = 0.9  # momentum
 weight_decay = 0.0001 # weight decay
 lr = 0.001   # learning rate
-epochs = 2 # number of epochs to train
+epochs = 500 # number of epochs to train
 lr_step = [10,20,30] # epochs to reduce lr
 
 
