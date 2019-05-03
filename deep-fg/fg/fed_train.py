@@ -144,13 +144,30 @@ def get_loader(option, iid=[.0, .0]):
         
         # Add sybils
         for i in range(option.num_sybils):
-            df = train_df[train_df['idx'] == 0].reset_index() # Sybils have non-iid data
-            # label flip
-            df['idx'] = 1
+            if iid[1] == 1.0:
+                df = train_df.copy() # Sybils have iid data
+                df.loc[df['idx'] == 0, "idx"] = 1            
+                df = df.reset_index()
+            elif iid[1] == 0.0:
+                df = train_df[train_df['idx'] == 0].reset_index() # Sybils have non-iid data
+                df['idx'] = 1
+            else:
+                # Get all the 0's and corresponding amount of iid data
+                class_df = train_df[train_df['idx'] == 0]
+                N_s = len(class_df)
+                N_iid = N_s * iid[1]/(1 - iid[1])
+                noniid_df = train_df
 
-            # df = train_df.copy() # Sybils have iid data
-            # df.loc[df['idx'] == 0, "idx"] = 1            
-            # df = df.reset_index()
+                if len(noniid_df) < N_iid:
+                    factor = math.ceil(N_iid / len(noniid_df)) - 1 # Factor is guaranteed to be >= 1
+                    noniid_df = noniid_df.append([noniid_df]*factor, ignore_index=True)
+                    noniid_df = noniid_df.sample(n=int(N_iid))
+                else:
+                    noniid_df = noniid_df.sample(n=int(N_iid))
+                df = class_df.append(noniid_df, ignore_index=True)
+                df.loc[df['idx'] == 0, "idx"] = 1            
+                df = df.reset_index()
+
 
             clientset = VGG_Face2(df, datadir, train_transform)
             client_loader = torch.utils.data.DataLoader(clientset, batch_size=option.batch_size,
