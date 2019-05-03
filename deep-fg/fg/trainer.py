@@ -12,7 +12,7 @@ import numpy as np
 import torch
 from torch.autograd import Variable
 import torchnet as tnt
-
+import os
 import sklearn.metrics.pairwise as smp
 
 """
@@ -61,7 +61,7 @@ class BaseTrainer(object):
             self.update_lr(epoch)
 
             train_loss = self.train_iter(epoch)
-            val_loss, top1 = self.validate()
+            val_loss, top1, attack_rate = self.validate()
             self.epoch_loss_plotter.log(epoch, train_loss, name="train")
             self.epoch_loss_plotter.log(epoch, val_loss, name="val")
             
@@ -182,7 +182,7 @@ class BaseTrainer(object):
 
 
 class FedTrainer(object):
-    def __init__(self, option, model, train_loader, val_loader, test_loader, optimizer, criterion, client_loaders, sybil_loaders):
+    def __init__(self, option, model, train_loader, val_loader, test_loader, optimizer, criterion, client_loaders, sybil_loaders, iidness=[.0, .0]):
         self.option = option
         self.model = model
         self.train_loader = train_loader
@@ -190,6 +190,7 @@ class FedTrainer(object):
         self.test_loader = test_loader
         self.optimizer = optimizer
         self.criterion = criterion
+        self.iidness = iidness
 
         self.epoch_loss_plotter = tnt.logger.VisdomPlotLogger('line', opts={'title': 'Epoch Loss', 'xlabel':"Epochs", 'ylabel':"Loss"})
         self.batch_loss_plotter = IncrementVisdomLineLogger(opts={'title': 'Batch Loss', 'xlabel':"Batch", 'ylabel':"Loss"})
@@ -201,6 +202,7 @@ class FedTrainer(object):
                                                                 'rownames': list(range(option.n_classes))})
 
         self.memory = None
+        self.wv_history = []
         self.client_loaders = client_loaders
         self.sybil_loaders = sybil_loaders
 
@@ -243,7 +245,7 @@ class FedTrainer(object):
             # self.epoch_loss_plotter.log(epoch, val_loss, name="val")
             
             if epoch % 10 == 0:
-                val_loss, top1 = self.validate()
+                val_loss, top1, attack_rate = self.validate()
                 print("Epoch {}/{}\t Train Loss: {}\t Val Loss: {}".format(epoch, self.option.epochs, train_loss, val_loss))
 
 
@@ -301,7 +303,6 @@ class FedTrainer(object):
 
     def aggregate_gradients(self, client_grads):
         num_clients = len(client_grads)
-        pdb.set_trace()
         grad_len = np.array(client_grads[0][-2].cpu().data.numpy().shape).prod()
         if self.memory is None:
             self.memory = np.zeros((num_clients, grad_len))
@@ -320,6 +321,8 @@ class FedTrainer(object):
             # wv = fg.foolsgold(grads) # Use FG w/o memory
             wv = np.ones(num_clients) # Don't use FG
         print(wv)
+        self.wv_history.append(wv)
+
         agg_grads = []  
         # Iterate through each layer
         for i in range(len(client_grads[0])):
@@ -343,6 +346,9 @@ class FedTrainer(object):
         # switch to evaluate mode
         self.model.eval()
 
+        preds = []
+        targets = []
+
         end = time.time()
         for i, (input, target) in enumerate(self.val_loader):
             input = input.cuda()
@@ -360,12 +366,42 @@ class FedTrainer(object):
 
             _, pred = output.topk(1, 1, True, True)
             pred = pred.t()[0].tolist()
+
+            preds.extend(pred)
+            targets.extend(target.tolist())
+
             confusion_meter.add(pred, target)
             # measure elapsed time
             batch_time.update(time.time() - end)
             end = time.time()
+        # Compute attack rate 0 to 1
+        # Percentage of True 0's classified as 1's
+        preds = np.array(preds)
+        targets = np.array(targets)
+        n_poisoned = (preds[targets == 0] == 1).sum() # Number of true 0's classified as 1's
+        n_total = (targets == 0).sum() # Number of true 0's
+        attack_rate = n_poisoned / n_total
 
         print(' Val Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
             .format(top1=top1, top5=top5))
         self.val_confusion_plotter.log(confusion_meter.value())
-        return losses.avg, top1.avg
+        return losses.avg, top1.avg, attack_rate
+    
+    # Save val_acc, attack_rate (how many 0's are classified as 1), wv_history, memory
+    def save_state(self):
+        val_loss, top1, attack_rate = self.validate()
+        state = {
+            "val_loss": val_loss,
+            "val_acc": top1.item(),
+            "attack_rate": attack_rate,
+            "wv_history": self.wv_history,
+            "memory": self.memory
+        }
+        # TODO: Refactor out
+        save_dir = os.path.join(self.option.save_path, "iidness")
+        if not os.path.isdir(save_dir):
+            os.makedirs(save_dir)
+        save_path = os.path.join(save_dir, "{}-{}.pth".format(int(100*self.iidness[0]), int(100*self.iidness[1])))
+
+        torch.save(state, save_path)
+        return state

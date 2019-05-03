@@ -35,11 +35,13 @@ def main():
     parser = argparse.ArgumentParser(description='Training')
     parser.add_argument('conf_path', type=str, metavar='conf_path')
     args = parser.parse_args()
-
+    
     option = Option(args.conf_path)
-    for client_iid in [.0, .25, .5, .75, 1.0]:
-        for sybil_iid in [.0, .25, .5, .75, 1.0]:
-            train(option, [client_iid, sybil_iid])
-
+    grid = np.zeros((5,5))
+    for i, client_iid in enumerate([.0, .25, .5, .75, 1.0]):
+        for j, sybil_iid in enumerate([.0, .25, .5, .75, 1.0]):
+            state = train(option, [client_iid, sybil_iid])
+            grid[i][j] = state['attack_rate']
+    pdb.set_trace()
 if __name__ == "__main__":
     main()

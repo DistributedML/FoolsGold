@@ -193,10 +193,10 @@ def train(option, iid=[.0, .0]):
     # client loaders is the train loaders for every client
     train_loader, val_loader, test_loader, client_loaders, sybil_loaders = get_loader(option, iid)    
 
-    trainer = FedTrainer(option, model, train_loader, val_loader, test_loader, optimizer, criterion, client_loaders, sybil_loaders)
+    trainer = FedTrainer(option, model, train_loader, val_loader, test_loader, optimizer, criterion, client_loaders, sybil_loaders, iidness=iid)
     trainer.train()
-    # trainer.validate()
-    pdb.set_trace()
+    state = trainer.save_state()
+    return state
 
 
 def main():

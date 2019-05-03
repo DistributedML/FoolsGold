@@ -1,5 +1,5 @@
 # ------------- general options ----------------------------------------
-save_path = "/home/chris/deep_fg/save/" # log path
+save_path = "/home/chris/FoolsGold/deep-fg/save/" # log path
 data_path = "/bigdata/vggface2/" # path for dataset folder, containing cifar10 and imagenet
 dataset = "vggface2"  # options: vggface2 | cifar10
 seed = 1  # manually set RNG seed
@@ -16,7 +16,7 @@ desired_bs = 8 # actually computed batch size
 momentum = 0.9  # momentum
 weight_decay = 0.0001 # weight decay
 lr = 0.001   # learning rate
-epochs = 200 # number of epochs to train
+epochs = 2 # number of epochs to train
 lr_step = [10,20,30] # epochs to reduce lr
 
 
