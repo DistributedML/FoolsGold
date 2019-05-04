@@ -21,7 +21,7 @@ lr_step = [10,20,30] # epochs to reduce lr
 
 
 # ------------- model options ------------------------------------------
-arch_type = "squeeze" # options: vgg | resnet | lenet | squeeze
+arch_type = "vgg" # options: vgg | resnet | lenet | squeeze
 arch_depth = 11
 experiment_id = "vggface_train"  # experiment identifier
 n_classes = 10  # number of classes in the dataset

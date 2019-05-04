@@ -141,12 +141,12 @@ def get_loader(option, iid=[.0, .0]):
                                             num_workers=option.num_workers,
                                             shuffle=True, pin_memory=True)
                 client_loaders.append(client_loader)
-        
         # Add sybils
         for i in range(option.num_sybils):
             if iid[1] == 1.0:
                 df = train_df.copy() # Sybils have iid data
-                df.loc[df['idx'] == 0, "idx"] = 1            
+                df.loc[df['idx'] == 0, "idx"] = 1
+                df = df.append(df[df['idx'] != 1]) # Ensure iid
                 df = df.reset_index()
             elif iid[1] == 0.0:
                 df = train_df[train_df['idx'] == 0].reset_index() # Sybils have non-iid data
@@ -212,6 +212,7 @@ def train(option, iid=[.0, .0]):
     trainer = FedTrainer(option, model, train_loader, val_loader, test_loader, optimizer, criterion, client_loaders, sybil_loaders, iidness=iid)
     trainer.train()
     state = trainer.save_state()
+    pdb.set_trace()
     return state
 
 
