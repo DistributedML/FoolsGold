@@ -8,6 +8,7 @@ import os
 import utils 
 import numpy as np
 import pandas as pd
+import time
 import sys
 sys.path.append("../")
 
@@ -40,7 +41,10 @@ def main():
     grid = np.zeros((5,5))
     for i, client_iid in enumerate([.0, .25, .5, .75, 1.0]):
         for j, sybil_iid in enumerate([.0, .25, .5, .75, 1.0]):
+            end = time.time()
             state = train(option, [client_iid, sybil_iid])
+            runtime = time.time() - end 
+            print("Finished client iid: {} sybil iid: {} in {}".format(i, j, runtime))
             grid[i][j] = state['attack_rate']
     pdb.set_trace()
 if __name__ == "__main__":

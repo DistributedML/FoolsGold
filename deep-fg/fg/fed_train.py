@@ -168,13 +168,12 @@ def get_loader(option, iid=[.0, .0]):
                 df.loc[df['idx'] == 0, "idx"] = 1            
                 df = df.reset_index()
 
-
             clientset = VGG_Face2(df, datadir, train_transform)
             client_loader = torch.utils.data.DataLoader(clientset, batch_size=option.batch_size,
                                         num_workers=option.num_workers,
                                         shuffle=True, pin_memory=True)
             sybil_loaders.append(client_loader)
-        
+
         train_df = train_df.reset_index()
         val_df = val_df.reset_index()
 
@@ -222,7 +221,7 @@ def main():
     args = parser.parse_args()
 
     option = Option(args.conf_path)
-    train(option, iid=[.25, .25])
+    train(option, iid=[1.0, 1.0])
 
 if __name__ == "__main__":
     main()
