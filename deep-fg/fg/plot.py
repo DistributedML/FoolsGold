@@ -10,7 +10,7 @@ def plot_gradients(grads):
 
 if __name__ == "__main__":
     # iid_dir = "../save/iidness_copy/"
-    iid_dir = "../save/iidness/"
+    iid_dir = "../save/squeeze_iidness/"
     iid_file_path = os.path.join(iid_dir, "100-100.pth")
     iid_exp = torch.load(iid_file_path)
     memory = iid_exp['memory']
