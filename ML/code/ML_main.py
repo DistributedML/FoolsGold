@@ -136,11 +136,11 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
         ##################################
 
         # Use Foolsgold (can optionally clip gradients via Krum)
-        # this_delta = model_aggregator.foolsgold(delta, summed_deltas, 
-        #     sig_features_idx, i, weights, clip=0)
+        this_delta = model_aggregator.foolsgold(delta, summed_deltas, 
+             sig_features_idx, i, weights, clip=0)
         
         # Krum
-        this_delta = model_aggregator.krum(delta, clip=1)
+        # this_delta = model_aggregator.krum(delta, clip=1)
         
         # Simple Average
         # this_delta = model_aggregator.average(delta)
@@ -185,9 +185,6 @@ if __name__ == "__main__":
     full_model = softmax_model_obj.SoftMaxModel(dataPath + "_train", numClasses)
     Xtest, ytest = full_model.get_data()
 
-    backdoor_model = softmax_model_obj.SoftMaxModel(dataPath + "_backdoor_test", numClasses)
-    Xback, yback = backdoor_model.get_data()
-
     models = []
 
     for i in range(numClasses):
@@ -213,6 +210,10 @@ if __name__ == "__main__":
         iterations, ideal_attack=False)
 
     if from_class == "b":
+
+        backdoor_model = softmax_model_obj.SoftMaxModel(dataPath + "_backdoor_test", numClasses)
+        Xback, yback = backdoor_model.get_data()
+
         attack_delim = attack.split("_")
         from_class = attack_delim[1]
         to_class = attack_delim[2]
