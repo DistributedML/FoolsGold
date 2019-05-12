@@ -1,6 +1,7 @@
 import torch 
 import os
 import shutil
+import pdb
 
 class Checkpoint(object):
     def __init__(self, option):
@@ -15,7 +16,6 @@ class Checkpoint(object):
         checkpoint_path = os.path.join(self.save_dir, "checkpoint.pth.tar")
         best_path = os.path.join(self.save_dir, "best_checkpoint.pth.tar")
         torch.save(state, checkpoint_path)
-
         if is_best:
             shutil.copyfile(checkpoint_path, best_path)
         print("Saved checkpoint")

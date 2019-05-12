@@ -233,6 +233,7 @@ class FedTrainer(object):
 
     def train(self):
         # in the fed learning case, epoch is analogous to iter
+        best_loss = float('inf')
         for epoch in range(self.start_epoch, self.option.epochs):
             # self.update_lr(epoch)
 
@@ -246,7 +247,22 @@ class FedTrainer(object):
             
             if epoch % 10 == 0:
                 val_loss, top1, attack_rate = self.validate()
-                print("Epoch {}/{}\t Train Loss: {}\t Val Loss: {}".format(epoch, self.option.epochs, train_loss, val_loss))
+                print("Epoch {}/{}\t Train Loss: {}\t Val Loss: {}\t Attack Rate: {}".format(
+                    epoch, self.option.epochs, train_loss, val_loss, attack_rate))
+
+                # save checkpoint
+                is_best = val_loss < best_loss
+                if is_best:
+                    best_loss = val_loss
+                save_state = {
+                    'epoch': epoch+1,
+                    'model': self.model,
+                    'optimizer': self.optimizer,
+                    'top1': top1,
+                    'best_top1': self.best_top1,
+                    'attack_rate': attack_rate
+                }
+                self.checkpoint.save_checkpoint(save_state, is_best)
 
 
     # for each client
@@ -337,7 +353,7 @@ class FedTrainer(object):
             
         return agg_grads
 
-    def validate(self):
+    def validate(self, test=False):
         batch_time = AverageMeter()
         losses = AverageMeter()
         top1 = AverageMeter()
@@ -350,7 +366,8 @@ class FedTrainer(object):
         targets = []
 
         end = time.time()
-        for i, (input, target) in enumerate(self.val_loader):
+        loader = self.test_loader if test else self.val_loader
+        for i, (input, target) in enumerate(loader):
             input = input.cuda()
             target = target.cuda()
 

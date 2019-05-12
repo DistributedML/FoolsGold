@@ -212,6 +212,7 @@ def train(option, iid=[.0, .0]):
     trainer = FedTrainer(option, model, train_loader, val_loader, test_loader, optimizer, criterion, client_loaders, sybil_loaders, iidness=iid)
     trainer.train()
     state = trainer.save_state()
+    pdb.set_trace()
     return state
 
 
