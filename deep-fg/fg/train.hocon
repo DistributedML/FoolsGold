@@ -35,7 +35,7 @@ retrain = ""
 resume = ""
 
 # ---------- foolsgold options -------------------------------------------
-num_sybils = 5
-num_sybil_groups = 5
+num_sybils = 0
+num_sybil_groups = 1
 use_fg = True
 use_memory = True

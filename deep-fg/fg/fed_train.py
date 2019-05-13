@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import math
 import sys
+import time
 sys.path.append("../")
 
 from datasets.vgg_face2 import VGG_Face2
@@ -211,9 +212,11 @@ def train(option, iid=[.0, .0]):
     cudnn.benchmark = True
     # client loaders is the train loaders for every client
     train_loader, val_loader, test_loader, client_loaders, sybil_loaders = get_loader(option, iid)    
-
+    start_time = time.time()
     trainer = FedTrainer(option, model, train_loader, val_loader, test_loader, optimizer, criterion, client_loaders, sybil_loaders, iidness=iid)
     trainer.train()
+    end_time = time.time()
+    print("Elapsed Time: {}".format(start_time - end_time))
     state = trainer.save_state()
     pdb.set_trace()
     return state
