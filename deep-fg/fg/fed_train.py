@@ -141,39 +141,42 @@ def get_loader(option, iid=[.0, .0]):
                                             num_workers=option.num_workers,
                                             shuffle=True, pin_memory=True)
                 client_loaders.append(client_loader)
-        # Add sybils
-        for i in range(option.num_sybils):
-            if iid[1] == 1.0:
-                df = train_df.copy() # Sybils have iid data
-                df.loc[df['idx'] == 0, "idx"] = 1
-                df = df.append(df[df['idx'] != 1]) # Ensure iid
-                df = df.reset_index()
-            elif iid[1] == 0.0:
-                df = train_df[train_df['idx'] == 0].reset_index() # Sybils have non-iid data
-                df['idx'] = 1
-            else:
-                # Get all the 0's and corresponding amount of iid data
-                class_df = train_df[train_df['idx'] == 0]
-                N_s = len(class_df)
-                N_iid = N_s * iid[1]/(1 - iid[1])
-                noniid_df = train_df
-
-                if len(noniid_df) < N_iid:
-                    factor = math.ceil(N_iid / len(noniid_df)) - 1 # Factor is guaranteed to be >= 1
-                    noniid_df = noniid_df.append([noniid_df]*factor, ignore_index=True)
-                    noniid_df = noniid_df.sample(n=int(N_iid))
+        for g in range(option.num_sybil_groups):
+            source_class = g*2
+            target_class = g*2 + 1
+            # Add sybils
+            for i in range(option.num_sybils):
+                if iid[1] == 1.0:
+                    df = train_df.copy() # Sybils have iid data
+                    df.loc[df['idx'] == source_class, "idx"] = target_class
+                    df = df.append(df[df['idx'] != target_class]) # Ensure iid
+                    df = df.reset_index()
+                elif iid[1] == 0.0:
+                    df = train_df[train_df['idx'] == source_class].reset_index() # Sybils have non-iid data
+                    df['idx'] = target_class
                 else:
-                    noniid_df = noniid_df.sample(n=int(N_iid))
-                df = class_df.append(noniid_df, ignore_index=True)
-                df.loc[df['idx'] == 0, "idx"] = 1            
-                df = df.reset_index()
+                    # Get all the 0's and corresponding amount of iid data
+                    class_df = train_df[train_df['idx'] == source_class]
+                    N_s = len(class_df)
+                    N_iid = N_s * iid[1]/(1 - iid[1])
+                    noniid_df = train_df
 
-            clientset = VGG_Face2(df, datadir, train_transform)
-            client_loader = torch.utils.data.DataLoader(clientset, batch_size=option.batch_size,
-                                        num_workers=option.num_workers,
-                                        shuffle=True, pin_memory=True)
-            sybil_loaders.append(client_loader)
+                    if len(noniid_df) < N_iid:
+                        factor = math.ceil(N_iid / len(noniid_df)) - 1 # Factor is guaranteed to be >= 1
+                        noniid_df = noniid_df.append([noniid_df]*factor, ignore_index=True)
+                        noniid_df = noniid_df.sample(n=int(N_iid))
+                    else:
+                        noniid_df = noniid_df.sample(n=int(N_iid))
+                    df = class_df.append(noniid_df, ignore_index=True)
+                    df.loc[df['idx'] == source_class, "idx"] = target_class        
+                    df = df.reset_index()
 
+                clientset = VGG_Face2(df, datadir, train_transform)
+                client_loader = torch.utils.data.DataLoader(clientset, batch_size=option.batch_size,
+                                            num_workers=option.num_workers,
+                                            shuffle=True, pin_memory=True)
+                sybil_loaders.append(client_loader)
+        
         train_df = train_df.reset_index()
         val_df = val_df.reset_index()
 

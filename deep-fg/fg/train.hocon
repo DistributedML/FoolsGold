@@ -1,6 +1,9 @@
 # ------------- general options ----------------------------------------
-save_path = "/home/chris/FoolsGold/deep-fg/save/" # log path
-data_path = "/bigdata/vggface2/" # path for dataset folder, containing cifar10 and imagenet
+# save_path = "/home/chris/FoolsGold/deep-fg/save/" # log path
+save_path = "/ubc/ece/home/ra/other/chrisjmyoon/FoolsGold/deep-fg/save/"
+# data_path = "/bigdata/vggface2/" # path for dataset folder, containing cifar10 and imagenet
+data_path = "/data/vggface2/"
+
 dataset = "vggface2"  # options: vggface2 | cifar10
 seed = 1  # manually set RNG seed
 gpu = "0"  # GPU id to use, e.g. "0,1,2,3"
@@ -32,6 +35,7 @@ retrain = ""
 resume = ""
 
 # ---------- foolsgold options -------------------------------------------
-num_sybils = 0
-use_fg = False
+num_sybils = 5
+num_sybil_groups = 5
+use_fg = True
 use_memory = True

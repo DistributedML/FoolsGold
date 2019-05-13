@@ -44,5 +44,6 @@ class Option(object):
 
         # ---------- foolsgold options -------------------------------------------
         self.num_sybils = self.conf['num_sybils']
+        self.num_sybil_groups = self.conf['num_sybil_groups']
         self.use_fg = self.conf['use_fg']
         self.use_memory = self.conf['use_memory']
