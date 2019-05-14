@@ -185,55 +185,54 @@ if __name__ == "__main__":
     full_model = softmax_model_obj.SoftMaxModel(dataPath + "_train", numClasses)
     Xtest, ytest = full_model.get_data()
 
-    for run in np.arange(1, 2):
+    props = [0, 25, 50, 75, 100]
+    
+    for honest_prop in props:
 
-        all_scores = np.zeros((11, 5))
-        row = 0
+        for bad_prop in props:
 
-        props = [0, 25, 50, 75, 100]
+            all_scores = np.zeros((5, 5))
 
-        for prop in props:
+            for run in np.arange(5):
 
-            models = []
+                models = []
 
-            ##################################
-            # Add the models; try differing IID
-            ##################################
-            for k in range(numClasses):
-                    
-                # e.g. "mnist7_mixed50"
-                datasuf = str(k) + "_mixed" + str(prop)
-                print("Appending " + datasuf)
-                models.append(dataPath + datasuf)
+                ##################################
+                # Add the models; try differing IID
+                ##################################
+                for k in range(numClasses):
+                        
+                    # e.g. "mnist7_mixed50"
+                    datasuf = str(k) + "_mixed" + str(honest_prop)
+                    print("Appending " + datasuf)
+                    models.append(dataPath + datasuf)
 
-            for attack in argv[2:]:
-                attack_delim = attack.split("_")
-                sybil_set_size = attack_delim[0]
-                from_class = attack_delim[1]
-                to_class = attack_delim[2]
+                for attack in argv[2:]:
+                    attack_delim = attack.split("_")
+                    sybil_set_size = attack_delim[0]
+                    from_class = attack_delim[1]
+                    to_class = attack_delim[2]
 
-                # e.g. "mnist_7_mixed_50_bad_1_7"
-                for i in range(int(sybil_set_size)):
-                    bad_source = dataPath + "_bad_" + from_class + "_" + to_class + "_mixed" + str(prop)
-                    print("Appending " + bad_source)
-                    models.append(dataPath + "_bad_" + from_class + "_" + to_class + "_mixed" + str(prop))
+                    # e.g. "mnist_7_mixed_50_bad_1_7"
+                    for i in range(int(sybil_set_size)):
+                        bad_source = dataPath + "_bad_" + from_class + "_" + to_class + "_mixed" + str(bad_prop)
+                        print("Appending " + bad_source)
+                        models.append(dataPath + "_bad_" + from_class + "_" + to_class + "_mixed" + str(bad_prop))
 
-            softmax_test = softmax_model_test.SoftMaxModelTest(dataset, numClasses, numFeatures)
-            weights = non_iid(models, numClasses, numParams, softmax_test, iterations, ideal_attack=False)
+                softmax_test = softmax_model_test.SoftMaxModelTest(dataset, numClasses, numFeatures)
+                weights = non_iid(models, numClasses, numParams, softmax_test, iterations, ideal_attack=False)
 
-            for attack in argv[2:]:
-                attack_delim = attack.split("_")
-                from_class = attack_delim[1]
-                to_class = attack_delim[2]
-                score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures)
-                print ' '.join(format(f, '.5f') for f in score)
-                all_scores[row] = score
+                for attack in argv[2:]:
+                    attack_delim = attack.split("_")
+                    from_class = attack_delim[1]
+                    to_class = attack_delim[2]
+                    score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures)
+                    print ' '.join(format(f, '.5f') for f in score)
+                    all_scores[run] = score
 
-            row += 1
-
-        np.savetxt("mnist_iid_new_" + str(run) + ".csv", all_scores,
-           fmt='%.5f',
-           delimiter=',')
+            np.savetxt("mnist_iid_h" + str(honest_prop) + "_b" + str(bad_prop) + ".csv", all_scores,
+               fmt='%.5f',
+               delimiter=',')
 
     # Sandbox: difference between ideal bad model and global model
     compare = False
