@@ -19,14 +19,6 @@ df1 = pd.read_csv("canon_rate.csv", header=None)
 data1 = df1.values
 toplot = np.mean(data1, axis=1)
 
-# ax1.xticks(np.arange(12) - 0.5, ticklabels, rotation=45)
-
-# plt.xlabel("Client Label", fontsize=18)
-# plt.ylabel("Attack Rate", fontsize=18)
-
-# fig.tight_layout(pad=0.1)
-# fig.savefig("canon_rate.pdf")
-
 df2 = pd.read_csv("canon_accuracy.csv", header=None)
 data2 = df2.values
 toplot2 = np.mean(data2, axis=1)
