@@ -50,7 +50,7 @@ plt.ylabel('Relative Slowdown', fontsize=16)
 
 ax.legend((p1[0], p2[0]),
           ('MNIST (CPU)', 'VGGFace2 (GPU)'),
-          loc='best', ncol=1, fontsize=16)
+          loc='best', ncol=2, fontsize=16)
 
 fig.tight_layout(pad=0.1)
 fig.savefig("fig_perf_relative.pdf")
