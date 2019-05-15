@@ -12,7 +12,7 @@ def plot_gradients(grads):
 
 def plot_gradients():
     iid_dir = "../save/vgg_iidness/"
-    iid_dir = "../save/squeeze_iidness/"
+    # iid_dir = "../save/squeeze_iidness/"
     iid_file_path = os.path.join(iid_dir, "100-100.pth")
     iid_exp = torch.load(iid_file_path)
     memory = iid_exp['memory']
@@ -26,11 +26,11 @@ def plot_gradients():
     pdb.set_trace()
 
 if __name__ == "__main__":
-    # plot_gradients()
-    iid_dir = "../save/vgg_iidness/"
-    # iid_dir = "../save/squeeze_iidness/"
-    grid_path = os.path.join(iid_dir, "vgg_grid.npy")
-    # grid_path = os.path.join(iid_dir, "fed_grid.npy")
-    grid = np.load(grid_path)
-    np.savetxt("vgg-heatmap.csv", grid, delimiter=",")
-    pdb.set_trace()
+    plot_gradients()
+    # iid_dir = "../save/vgg_iidness/"
+    # # iid_dir = "../save/squeeze_iidness/"
+    # grid_path = os.path.join(iid_dir, "vgg_grid.npy")
+    # # grid_path = os.path.join(iid_dir, "fed_grid.npy")
+    # grid = np.load(grid_path)
+    # np.savetxt("vgg-heatmap.csv", grid, delimiter=",")
+    # pdb.set_trace()
