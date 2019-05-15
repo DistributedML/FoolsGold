@@ -2,8 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import pdb
+from matplotlib.lines import Line2D
 
-fig, (ax1, ax2) = plt.subplots(2, 4, sharex=True, sharey=True, figsize=(12, 5))
+fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, sharex=True, sharey=True, figsize=(20, 5))
 width = 0.5
 
 ########################################
@@ -25,33 +26,14 @@ toplot2 = np.mean(data2, axis=1)
 toplot[toplot < 0.01] = 0.001
 toplot2[toplot2 < 0.01] = 0.001
 
-plt.subplot(2, 4, 1)
-plt.bar(np.arange(6), toplot[is_mnist], width)
-plt.ylabel("Attack Rate", fontsize=18)
-plt.tick_params(
-    axis='x',          # changes apply to the x-axis
-    which='both',      # both major and minor ticks are affected
-    bottom=False,      # ticks along the bottom edge are off
-    top=False,         # ticks along the top edge are off
-    labelbottom=False) # labels along the bottom edge are of
+plt.subplot(1, 4, 1)
+plt.ylim(0, 1.19)
 
-plt.tick_params(
-    labelsize=14,
-    axis='y',          # changes apply to the x-axis
-    which='both',      # both major and minor ticks are affected
-    bottom=False,      # ticks along the bottom edge are off
-    top=False,         # ticks along the top edge are off
-    labelbottom=False) # labels along the bottom edge are of
-
-plt.ylim(0, 1)
-
-# plt.setp(ax.get_yticklabels(), fontsize=18)
-# plt.setp(ax2.get_yticklabels(), fontsize=18)
-
-plt.subplot(2, 4, 5)
-plt.ylim(0, 1.05)
+# Add markers to plots
+plt.plot(np.arange(2, 6), toplot[is_mnist[2:]], marker='D', markersize=10,
+   color='r', linestyle="")
 plt.bar(np.arange(6), toplot2[is_mnist], width)
-plt.ylabel("Accuracy", fontsize=18)
+plt.ylabel("Rate", fontsize=18)
 plt.xlabel("MNIST", fontsize=18)
 plt.xticks(np.arange(6), ticklabels_mnist, rotation=25, fontsize=12)
 plt.tick_params(
@@ -71,31 +53,12 @@ ticklabels_vgg = ["FL-NA", "FG-NA",
 df1 = pd.read_csv("deep_accuracy.csv", header=None)
 toplot = df1.values
 
-plt.subplot(2, 4, 2)
-plt.bar(np.arange(5), toplot[1,:], width)
+plt.subplot(1, 4, 2)
+plt.ylim(0, 1.19)
 
-plt.yticks([])
-#plt.ylabel("Attack Rate", fontsize=18)
-
-plt.tick_params(
-    axis='x',          # changes apply to the x-axis
-    which='both',      # both major and minor ticks are affected
-    bottom=False,      # ticks along the bottom edge are off
-    top=False,         # ticks along the top edge are off
-    labelbottom=False) # labels along the bottom edge are of
-
-plt.tick_params(
-    labelsize=14,
-    axis='y',          # changes apply to the x-axis
-    which='both',      # both major and minor ticks are affected
-    bottom=False,      # ticks along the bottom edge are off
-    top=False,         # ticks along the top edge are off
-    labelbottom=False) # labels along the bottom edge are of
-
-plt.ylim(0, 1)
-
-plt.subplot(2, 4, 6)
-plt.ylim(0, 1.05)
+# Add markers to plots
+plt.plot(np.arange(2,5), toplot[1,2:], marker='D', markersize=10,
+   color='r', linestyle="")
 plt.bar(np.arange(5), toplot[0,:], width)
 
 plt.yticks([])
@@ -131,30 +94,8 @@ toplot2 = np.mean(data2, axis=1)
 toplot[toplot < 0.01] = 0.001
 toplot2[toplot2 < 0.01] = 0.001
 
-plt.subplot(2, 4, 3)
-plt.bar(np.arange(5), toplot[is_kdd], width)
-
-plt.yticks([])
-#plt.ylabel("Attack Rate", fontsize=18)
-
-plt.tick_params(
-    axis='x',          # changes apply to the x-axis
-    which='both',      # both major and minor ticks are affected
-    bottom=False,      # ticks along the bottom edge are off
-    top=False,         # ticks along the top edge are off
-    labelbottom=False) # labels along the bottom edge are of
-
-plt.tick_params(
-    labelsize=14,
-    axis='y',          # changes apply to the x-axis
-    which='both',      # both major and minor ticks are affected
-    bottom=False,      # ticks along the bottom edge are off
-    top=False,         # ticks along the top edge are off
-    labelbottom=False) # labels along the bottom edge are of
-plt.ylim(0, 1)
-
-plt.subplot(2, 4, 7)
-plt.ylim(0, 1.05)
+plt.subplot(1, 4, 3)
+plt.ylim(0, 1.19)
 plt.tick_params(
     labelsize=14,
     axis='y',          # changes apply to the x-axis
@@ -163,6 +104,9 @@ plt.tick_params(
     top=False,         # ticks along the top edge are off
     labelbottom=False) # labels along the bottom edge are of
 
+# Add markers to plots
+plt.plot(np.arange(2, 5), toplot[is_kdd[2:]], marker='D', markersize=10,
+   color='r', linestyle="")
 plt.bar(np.arange(5), toplot2[is_kdd], width)
 
 plt.yticks([])
@@ -191,20 +135,8 @@ toplot2 = np.mean(data2, axis=1)
 toplot[toplot < 0.01] = 0.005
 toplot2[toplot2 < 0.01] = 0.005
 
-plt.subplot(2, 4, 4)
-plt.ylim(0, 1)
-plt.bar(np.arange(5), toplot[is_amazon], width)
-
-#plt.ylabel("Attack Rate", fontsize=18)
-plt.yticks([])
-
-plt.tick_params(
-    axis='x',          # changes apply to the x-axis
-    which='both',      # both major and minor ticks are affected
-    bottom=False,      # ticks along the bottom edge are off
-    top=False,         # ticks along the top edge are off
-    labelbottom=False) # labels along the bottom edge are of
-
+plt.subplot(1, 4, 4)
+plt.ylim(0, 1.19)
 plt.tick_params(
     labelsize=14,
     axis='y',          # changes apply to the x-axis
@@ -213,16 +145,9 @@ plt.tick_params(
     top=False,         # ticks along the top edge are off
     labelbottom=False) # labels along the bottom edge are of
 
-plt.subplot(2, 4, 8)
-plt.ylim(0, 1.05)
-plt.tick_params(
-    labelsize=14,
-    axis='y',          # changes apply to the x-axis
-    which='both',      # both major and minor ticks are affected
-    bottom=False,      # ticks along the bottom edge are off
-    top=False,         # ticks along the top edge are off
-    labelbottom=False) # labels along the bottom edge are of
-
+# Add markers to plots
+plt.plot(np.arange(2, 5), toplot[is_amazon[2:]], marker='D', markersize=10,
+   color='r', linestyle="")
 plt.bar(np.arange(5), toplot2[is_amazon], width)
 
 #plt.ylabel("Accuracy", fontsize=18)
@@ -230,6 +155,12 @@ plt.yticks([])
 
 plt.xlabel("Amazon", fontsize=18)
 plt.xticks(np.arange(5), ticklabels_amazon, rotation=25, fontsize=12)
+
+# Fake data for legend
+custom_lines = [Line2D([0], [0], lw=4),
+                Line2D([0], [0], color='r', marker='D', markersize=10, linestyle="", lw=4)]
+fig.legend(custom_lines, ['Training Accuracy', 'Attack Rate'],
+    loc='upper right', ncol=2, fontsize=18)
 
 fig.tight_layout(pad=0.1)
 fig.savefig("fig_canon_multi.pdf")

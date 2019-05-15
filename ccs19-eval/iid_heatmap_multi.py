@@ -7,9 +7,9 @@ import pandas as pd
 
 def plot():
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True, figsize=(12, 5))
-    sns.set({'font.size': 12, 'axes.labelsize': 12, 'legend.fontsize': 14.0, 
-    'axes.titlesize': 12, 'xtick.labelsize': 14, 'ytick.labelsize': 14})
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True, figsize=(10, 5))
+    sns.set({'font.size': 16, 'axes.labelsize': 20, 'legend.fontsize': 20, 
+    'axes.titlesize': 16, 'xtick.labelsize': 20, 'ytick.labelsize': 20})
     cmap = 'coolwarm'
 
     plt.subplot(1, 2, 1)
@@ -19,7 +19,7 @@ def plot():
     for i in np.arange(5):
         for j in np.arange(5):
             df = pd.read_csv("mnist-iid-heatmap/mnist_iid_h" + str(props[i]) + "_b" + str(props[j]) + ".csv", header=None)
-            toplot[i,j] = df[4][0]
+            toplot[4 - i,j] = df[4][0]
 
     ax = sns.heatmap(toplot, 
         linewidth=1, 
@@ -28,14 +28,14 @@ def plot():
         center=0, 
         cmap=cmap,
         xticklabels=props,
-        yticklabels=props,
+        yticklabels=[100, 75, 50 ,25, 0],
         vmin=0,
         vmax=1,
         cbar=False
         )
 
-    plt.xlabel("Honest MNIST Shared Data Proportion", fontsize=18)
-    plt.ylabel("Sybil Shared Data Proportion", fontsize=18)
+    plt.xlabel("Honest MNIST    \n Shared Data Proportion", fontsize=20)
+    plt.ylabel("Sybil Shared Data Proportion", fontsize=20)
 
     plt.subplot(1, 2, 2)
     toplot = np.zeros((5, 5))
@@ -55,7 +55,7 @@ def plot():
         vmax=1
         )
 
-    plt.xlabel("Honest VGGFace2 Shared Data Proportion", fontsize=18)
+    plt.xlabel("Honest VGGFace2 \nShared Data Proportion", fontsize=20)
     plt.ylabel("", fontsize=4)
 
     plt.tight_layout(pad=0.1)
