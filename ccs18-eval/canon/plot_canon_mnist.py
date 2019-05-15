@@ -11,11 +11,9 @@ ticklabels = ["A-1 MNIST", "A-1 KDD", "A-1 Amazon", "A-5 MNIST", "A-5 KDD",
               "A-AllOnOne ", "A-99"]
 
 ticklabels_mnist = ["Baseline No Attack", "FoolsGold No Attack",
-"A-1",
-"A-5", "A-2x5",
-"A-5x5", "A-99"]
+"A-1", "A-5", "A-5x5", "A-99"]
 
-is_mnist = [0, 3, 6, 9, 12, 14, 17]
+is_mnist = [0, 3, 6, 9, 14, 17]
 
 df1 = pd.read_csv("canon_rate.csv", header=None)
 data1 = df1.values
@@ -37,7 +35,7 @@ toplot[toplot < 0.01] = 0.001
 toplot2[toplot2 < 0.01] = 0.001
 
 plt.subplot(2, 1, 1)
-plt.bar(np.arange(7), toplot[is_mnist], width)
+plt.bar(np.arange(6), toplot[is_mnist], width)
 plt.ylabel("Attack Rate", fontsize=18)
 plt.tick_params(
     axis='x',          # changes apply to the x-axis
@@ -61,9 +59,9 @@ plt.ylim(0, 1)
 
 plt.subplot(2, 1, 2)
 plt.ylim(0, 1.05)
-plt.bar(np.arange(7), toplot2[is_mnist], width)
+plt.bar(np.arange(6), toplot2[is_mnist], width)
 plt.ylabel("Accuracy", fontsize=18)
-plt.xticks(np.arange(7), ticklabels_mnist, rotation=25, fontsize=16)
+plt.xticks(np.arange(6), ticklabels_mnist, rotation=25, fontsize=16)
 plt.tick_params(
     labelsize=14,
     axis='y',          # changes apply to the x-axis
