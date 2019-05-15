@@ -13,8 +13,6 @@ doubleobj = np.zeros((5, 4))
 df = pd.read_csv("fig3_1749.csv", header=None)
 doubleobj = df.values
 
-pdb.set_trace()
-
 for i in range(5):
 
     df = pd.read_csv("fig3results_" + "mnist" + "_" + str(i) + ".csv", header=None)
@@ -39,5 +37,6 @@ ax.spines['top'].set_visible(False)
 
 plt.setp(ax.get_xticklabels(), fontsize=18)
 plt.setp(ax.get_yticklabels(), fontsize=18)
+plt.show()
 
 fig.savefig("fig3_mixing_old.pdf", bbox_inches='tight')
