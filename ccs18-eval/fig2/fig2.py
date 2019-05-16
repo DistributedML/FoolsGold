@@ -11,13 +11,14 @@ def plot():
     toplot = df.values
     ax = sns.heatmap(toplot, mask=np.eye(10), 
         linewidth=0.5, annot=True, fmt=".3f",
-        center=0, cmap='Greys')
+        center=0, cmap='coolwarm')
 
     plt.xlabel("Target Label", fontsize=18)
     plt.ylabel("Source Label", fontsize=18)
 
     plt.tight_layout(pad=0.1)
     plt.savefig("fig2_heatmap.pdf")
+    plt.show()
 
 
 def collect():
