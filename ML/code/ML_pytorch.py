@@ -9,6 +9,10 @@ from numpy.linalg import norm
 
 import model_aggregator
 import utils
+import softmax_model_test
+import softmax_model_obj
+import poisoning_compare
+
 from mnist_cnn_model import MNISTCNNModel
 from mnist_dataset import MNISTDataset
 from client import Client
@@ -43,7 +47,7 @@ def basic_conv(dataset, num_params, iterations=3000):
     train_progress = np.zeros(iterations)
     test_progress = np.zeros(iterations)
 
-    for i in xrange(iterations):
+    for i in range(iterations):
         deltas = client.getGrad()
         # Need to use simpleStep because of momentum
         client.simpleStep(deltas)
@@ -76,6 +80,7 @@ def non_iid(model_names, numClasses, numParams, iterations=3000,
     for dataset_name in model_names:
         list_of_models.append(Client("mnist", dataset_name, batch_size, model(), dataset, transform))
         list_of_models[-1].updateModel(init_weights)
+    
     # # Include the model that sends the ideal vector on each iteration
     # if ideal_attack:
     #     list_of_models.append(softmax_model_obj.SoftMaxModelEvil(dataPath +
@@ -92,7 +97,7 @@ def non_iid(model_names, numClasses, numParams, iterations=3000,
     delta_memory = np.zeros((numClients, numParams, memory_size))
     summed_deltas = np.zeros((numClients, numParams))
 
-    for i in xrange(iterations):
+    for i in range(iterations):
 
         delta = np.zeros((numClients, numParams))
 
@@ -143,13 +148,13 @@ def non_iid(model_names, numClasses, numParams, iterations=3000,
         weights = list_of_models[0].getModelWeights()
         this_delta = model_aggregator.foolsgold(delta,
            summed_deltas, sig_features_idx, i, weights, clip=0)
+        
+        # Mean
         # this_delta = model_aggregator.average(delta)
         
         # Krum
         # this_delta = model_aggregator.krum(delta, clip=1)
         
-        # Krum
-        # this_delta = model_aggregator.average(delta)
 
         # Step in new gradient direction
         for k in range(len(list_of_models)):
@@ -198,8 +203,11 @@ if __name__ == "__main__":
     # full_model = softmax_model_obj.SoftMaxModel(dataPath + "_train", numClasses)
     # Xtest, ytest = full_model.get_data()
 
-    eval_data = np.zeros((5, 5))
     num_executions = 1
+    eval_data = np.zeros(num_executions)
+
+    full_model = softmax_model_obj.SoftMaxModel("mnist/mnist_test", numClasses)
+    Xtest, ytest = full_model.get_data()
 
     for run in range(num_executions):
 
@@ -227,7 +235,8 @@ if __name__ == "__main__":
         #     to_class = attack_delim[2]
         #     score = poisoning_compare.eval(Xtest, ytest, weights, int(from_class), int(to_class), numClasses, numFeatures)
         #     eval_data[run] = score
-    pdb.set_trace()
+
+    
     # Sandbox: difference between ideal bad model and global model
     compare = False
     if compare:

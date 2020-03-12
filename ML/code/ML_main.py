@@ -84,7 +84,7 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
 
     summed_deltas = np.zeros((numClients, numParams))
 
-    for i in xrange(iterations):
+    for i in range(iterations):
 
         delta = np.zeros((numClients, numParams))
 
@@ -153,8 +153,8 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
             train_progress.append(error)
 
     print("Done iterations!")
-    print("Train error: %d", softmax_test.train_error(weights))
-    print("Test error: %d", softmax_test.test_error(weights))
+    print("Train error: {}".format(softmax_test.train_error(weights)))
+    print("Test error: {}".format(softmax_test.test_error(weights)))
     return weights
 
 
@@ -177,12 +177,12 @@ if __name__ == "__main__":
         numClasses = 50
         numFeatures = 10000
     else:
-        print("Dataset " + dataset + " not found. Available datasets: mnist kddcup amazon")
+        print("Dataset {} not found. Available datasets: mnist kddcup amazon".format(dataset))
 
     numParams = numClasses * numFeatures
     dataPath = dataset + "/" + dataset
 
-    full_model = softmax_model_obj.SoftMaxModel(dataPath + "_train", numClasses)
+    full_model = softmax_model_obj.SoftMaxModel(dataPath + "_test", numClasses)
     Xtest, ytest = full_model.get_data()
 
     models = []

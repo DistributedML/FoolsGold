@@ -1,6 +1,6 @@
 from __future__ import division
 from numpy.linalg import norm
-from scipy.misc import logsumexp
+from scipy.special import logsumexp
 import numpy as np
 import utils
 import pdb
