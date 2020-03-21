@@ -137,13 +137,15 @@ def non_iid(model_names, numClasses, numParams, softmax_test, iterations=3000,
 
         # Use Foolsgold (can optionally clip gradients via Krum)
         this_delta = model_aggregator.foolsgold(delta, summed_deltas, 
-             sig_features_idx, i, weights, clip=0)
+            sig_features_idx, i, weights, clip=0)
         
         # Krum
         # this_delta = model_aggregator.krum(delta, clip=1)
         
-        # Simple Average
-        # this_delta = model_aggregator.average(delta)
+        # Simple Functions
+        #this_delta = model_aggregator.average(delta)
+        #this_delta = model_aggregator.median(delta)
+        #this_delta = model_aggregator.trimmed_mean(delta, 0.1)
 
         weights = weights + this_delta
 

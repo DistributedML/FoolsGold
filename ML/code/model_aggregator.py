@@ -3,6 +3,8 @@ import numpy as np
 import pdb
 import sklearn.metrics.pairwise as smp
 import matplotlib.pyplot as plt
+import scipy.stats
+
 n = 0
 d = 0
 n_classes = 0
@@ -133,11 +135,23 @@ def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, topk_pro
 
     return np.dot(delta.T, wv)
 
+# Simple element-wise mean
 def average(full_deltas):
 
     deltas = np.reshape(full_deltas, (n, d))
     return np.mean(deltas, axis=0)
 
+# Simple element-wise median
+def median(full_deltas):
+
+    deltas = np.reshape(full_deltas, (n, d))
+    return np.median(deltas, axis=0)
+
+# Beta is the proportion to trim from the top and bottom.
+def trimmed_mean(full_deltas, beta):
+
+    deltas = np.reshape(full_deltas, (n, d))
+    return scipy.stats.trim_mean(deltas, beta, axis=0)
 
 # Returns the index of the row that should be used in Krum
 def krum(deltas, clip):
