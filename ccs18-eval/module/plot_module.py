@@ -12,12 +12,12 @@ def main():
 
     fig, ax = plt.subplots(figsize=(12, 6))
 
-    ticklabels = ["Baseline TrainErr", "Baseline AttackRate", "Baseline Preserved"
-                  "NoMem TrainErr", "NoMem AttackRate", "NoMem Preserved",
-                  "Baseline TrainErr", "Baseline AttackRate", "Baseline Preserved",
-                  "No RW TrainErr", "No RW AttackRate", "No RW Preserved",
-                  "Baseline TrainErr", "Baseline AttackRate", "Baseline Preserved",
-                  "NoLogit TrainErr", "NoLogit AttackRate", "NoLogit Preserved"]
+    ticklabels = ["Baseline TestErr", "Baseline AttackRate", "Baseline Preserved"
+                  "NoMem TestErr", "NoMem AttackRate", "NoMem Preserved",
+                  "Baseline TestErr", "Baseline AttackRate", "Baseline Preserved",
+                  "No RW TestErr", "No RW AttackRate", "No RW Preserved",
+                  "Baseline TestErr", "Baseline AttackRate", "Baseline Preserved",
+                  "NoLogit TestErr", "NoLogit AttackRate", "NoLogit Preserved"]
 
     ticklabels = ["MNIST Baseline", "MNIST No Memory", "KDD Baseline",
                   "KDD No Pardoning", "MNIST Baseline 99%", "MNIST No Logit"]
@@ -68,7 +68,7 @@ def main():
     plt.ylabel('%', fontsize=20)
 
     ax.legend((p1[0], p2[0], p3[0]),
-              ('Training Error', 'Attack Rate', 'Target Class Error'),
+              ('Test Error', 'Attack Rate', 'Target Class Test Error'),
               loc='upper left', ncol=3, fontsize=20)
 
     fig.tight_layout(pad=0.1)

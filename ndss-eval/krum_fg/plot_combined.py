@@ -64,7 +64,7 @@ for i in ax.patches:
 plt.ylabel('%', fontsize=16)
 
 ax.legend((p1[0], p2[0]),
-          ('Training Accuracy', 'Attack Rate'),
+          ('Test Accuracy', 'Attack Rate'),
           loc='best', ncol=2, fontsize=16)
 
 fig.tight_layout(pad=0.1)

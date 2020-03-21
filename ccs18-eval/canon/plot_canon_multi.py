@@ -159,7 +159,7 @@ plt.xticks(np.arange(5), ticklabels_amazon, rotation=25, fontsize=12)
 # Fake data for legend
 custom_lines = [Line2D([0], [0], lw=4),
                 Line2D([0], [0], color='r', marker='D', markersize=10, linestyle="", lw=4)]
-fig.legend(custom_lines, ['Training Accuracy', 'Attack Rate'],
+fig.legend(custom_lines, ['Test Accuracy', 'Attack Rate'],
     loc='upper right', ncol=2, fontsize=18)
 
 fig.tight_layout(pad=0.1)
