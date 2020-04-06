@@ -20,8 +20,11 @@ def main(argv):
         dir = "data/" + dataset + "/"
 
         data = np.load(os.path.join('../ML', dir + filename + '.npy'))
+        
+        # Set the target label
         data[:, -1] = int(argv[2])
         
+        # Set pixel #783 to white
         data[:,783] = np.max(data[:,0:784])
 
         save_file = dir + dataset + "_backdoor_" + argv[2]
@@ -31,14 +34,30 @@ def main(argv):
 
         testdata = np.load(os.path.join('../ML', dir + 'mnist_test.npy'))
         
-        # For now, let's insert the backdoor into 20% of the data
-
+        # For now, let's insert the backdoor into 20% of the test data
         testdata[:2000,783] = np.max(testdata[:2000,:784])
 
         test_save_file = dir + dataset + "_backdoor_test"
         
         print("Generated : " + test_save_file + " of size " + str(testdata.shape))
         np.save(test_save_file, testdata)    
+
+    elif argv[0] == "untargeted":
+
+        dataset = argv[1]
+        target = argv[2]
+        filename = dataset + "_uniform_" + str(argv[2])
+        dir = "data/" + dataset + "/"
+
+        data = np.load(os.path.join('../ML', dir + filename + '.npy'))
+        
+        # Perturb each label by 1
+        data[:, -1] = (data[:, -1] + 1) % 10
+
+        save_file = dir + dataset + "_untargeted_" + argv[2]
+        
+        print("Generated : " + save_file + " of size " + str(data.shape))
+        np.save(save_file, data)
 
     else:
 

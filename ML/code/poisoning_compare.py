@@ -23,8 +23,8 @@ def eval(Xtest, ytest, weights, correctLabel, targetLabel,
     if verbose:
         print("Accuracy overall: " + str(overall))
         print("Accuracy on other digits: " + str(others))
-        print("Target Training Accuracy on source label " + str(correctLabel) + "s: " + str(correct1))
-        print("Target Training Accuracy on target label " + str(targetLabel) + "s: " + str(targetlabel_correct))
+        print("Target Accuracy on source label " + str(correctLabel) + "s: " + str(correct1))
+        print("Target Accuracy on target label " + str(targetLabel) + "s: " + str(targetlabel_correct))
         print("Target Attack Rate (" + str(correctLabel) + " to " + str(targetLabel) + "): " + str(attacked1)  + "\n")
     else:
         print("Accuracy overall: " + str(overall))
@@ -47,7 +47,7 @@ def backdoor_eval(Xtest, ytest, weights, targetLabel,
     attacked1 = np.mean(yhat[targetIdx] == targetLabel)
 
     print("Accuracy overall: " + str(overall))
-    print("Target Training Accuracy backdoored examples: " + str(correct1))
+    print("Target Accuracy backdoored examples: " + str(correct1))
     print("Target Attack Rate (Backdoored to " + str(targetLabel) + "): " + str(attacked1)  + "\n")
     
     return overall, correct1, attacked1
