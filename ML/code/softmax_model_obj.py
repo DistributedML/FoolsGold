@@ -19,7 +19,7 @@ class SoftMaxModel:
         self.n_classes = numClasses
         self.d = self.X.shape[1] * self.n_classes
         self.lammy = 0.01
-        self.alpha = 0.005
+        self.alpha = 0.01
 
     def get_data(self):
         return self.X, self.y
