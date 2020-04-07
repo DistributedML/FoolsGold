@@ -4,7 +4,7 @@ import pandas as pd
 import pdb
 from matplotlib.lines import Line2D
 
-fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, sharex=True, sharey=True, figsize=(20, 5))
+fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, sharex=True, sharey=True, figsize=(20, 3))
 width = 0.5
 
 ########################################
@@ -27,7 +27,7 @@ toplot[toplot < 0.01] = 0.001
 toplot2[toplot2 < 0.01] = 0.001
 
 plt.subplot(1, 4, 1)
-plt.ylim(0, 1.19)
+plt.ylim(0, 1.35)
 
 # Add markers to plots
 plt.plot(np.arange(2, 6), toplot[is_mnist[2:]], marker='D', markersize=10,
@@ -54,7 +54,7 @@ df1 = pd.read_csv("deep_accuracy.csv", header=None)
 toplot = df1.values
 
 plt.subplot(1, 4, 2)
-plt.ylim(0, 1.19)
+plt.ylim(0, 1.35)
 
 # Add markers to plots
 plt.plot(np.arange(2,5), toplot[1,2:], marker='D', markersize=10,
@@ -73,7 +73,7 @@ plt.tick_params(
     bottom=False,      # ticks along the bottom edge are off
     top=False,         # ticks along the top edge are off
     labelbottom=False) # labels along the bottom edge are of
-fig.tight_layout(pad=0.1)
+#fig.tight_layout(pad=0.5)
 
 ########################################
 ## KDD
@@ -95,7 +95,7 @@ toplot[toplot < 0.01] = 0.001
 toplot2[toplot2 < 0.01] = 0.001
 
 plt.subplot(1, 4, 3)
-plt.ylim(0, 1.19)
+plt.ylim(0, 1.35)
 plt.tick_params(
     labelsize=14,
     axis='y',          # changes apply to the x-axis
@@ -114,7 +114,7 @@ plt.yticks([])
 
 plt.xlabel("KDD", fontsize=18)
 plt.xticks(np.arange(5), ticklabels_kdd, rotation=25, fontsize=12)
-fig.tight_layout(pad=0.1)
+#fig.tight_layout(pad=0.5)
 
 ########################################
 ## Amazon
@@ -136,7 +136,7 @@ toplot[toplot < 0.01] = 0.005
 toplot2[toplot2 < 0.01] = 0.005
 
 plt.subplot(1, 4, 4)
-plt.ylim(0, 1.19)
+plt.ylim(0, 1.35)
 plt.tick_params(
     labelsize=14,
     axis='y',          # changes apply to the x-axis
@@ -159,10 +159,13 @@ plt.xticks(np.arange(5), ticklabels_amazon, rotation=25, fontsize=12)
 # Fake data for legend
 custom_lines = [Line2D([0], [0], lw=4),
                 Line2D([0], [0], color='r', marker='D', markersize=10, linestyle="", lw=4)]
-fig.legend(custom_lines, ['Test Accuracy', 'Attack Rate'],
-    loc='upper right', ncol=2, fontsize=18)
 
-fig.tight_layout(pad=0.1)
+fig.legend(custom_lines, ['Test Accuracy', 'Attack Rate'],
+    loc='upper right',
+    bbox_to_anchor=(1, 1.05),
+    ncol=2, fontsize=18)
+
+plt.tight_layout(pad=0.1)
 fig.savefig("fig_canon_multi.pdf")
 
 plt.show()

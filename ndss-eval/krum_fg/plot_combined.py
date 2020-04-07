@@ -14,7 +14,7 @@ df3 = pd.read_csv("combined_attack_krfg.csv", header=None)
 data3 = df3.values
 
 width = 0.25
-fig, ax = plt.subplots(figsize=(8, 4))
+fig, ax = plt.subplots(figsize=(8, 2))
 ticklabels = ['FoolsGold', 'MultiKrum', 'FoolsGold+MultiKrum']
 
 plot_data1 = np.ones(3)
@@ -33,13 +33,13 @@ p2 = ax.bar(np.arange(3) + width, plot_data2, width, hatch='.')
 ax.set_xticks(np.arange(3) + width / 2)
 ax.set_xticklabels(ticklabels, fontsize=14)
 
-ax.set_yticklabels(np.array([0, 20, 40, 60, 80, 100]))
+ax.set_yticklabels(np.array([0, 50, 100]))
 plt.setp(ax.get_yticklabels(), fontsize=14)
 
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 
-plt.ylim(0, 1.3)
+plt.ylim(0, 1.8)
 
 totals = []
 
@@ -65,7 +65,9 @@ plt.ylabel('%', fontsize=16)
 
 ax.legend((p1[0], p2[0]),
           ('Test Accuracy', 'Attack Rate'),
-          loc='best', ncol=2, fontsize=16)
+          #loc='best',
+          #bbox_to_anchor=(0.8, 1),
+          ncol=2, fontsize=16)
 
 fig.tight_layout(pad=0.1)
 fig.savefig("fig_krum_combined.pdf")

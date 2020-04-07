@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import pdb
 
-fig, ax = plt.subplots(figsize=(10, 5))
+fig, ax = plt.subplots(figsize=(10, 3.5))
 
 full_df = np.zeros((14, 5, 5))
 
@@ -55,7 +55,7 @@ ax.add_line(l3)
 ax.add_line(l4)
 ax.set_xlim(-0.05, 1.1)
 
-plt.legend(handles=[l1, l2, l3, l4], loc='right', fontsize=18)
+plt.legend(handles=[l1, l2, l3, l4], loc='lower right', bbox_to_anchor=(1, 0.05), fontsize=18)
 
 plt.xlabel("Proportion of Indicative Features", fontsize=22)
 plt.ylabel("%", fontsize=22)
@@ -70,6 +70,6 @@ plt.setp(ax.get_xticklabels(), fontsize=18)
 plt.setp(ax.get_yticklabels(), fontsize=18)
 
 fig.tight_layout(pad=0.1)
-fig.savefig("feature_importance.pdf")
+fig.savefig("fig_feature_importance.pdf")
 
 plt.show()
