@@ -60,7 +60,7 @@ ax.add_line(l6)
 ax.add_line(l7)
 ax.set_xlim(0, 9.5)
 
-plt.legend(handles=[l1, l2, l3, l4, l5, l6, l7], loc='right', fontsize=18)
+plt.legend(handles=[l1, l2, l3, l4, l5, l6, l7], loc='right', fontsize=22)
 
 plt.xlabel("Number of Poisoners", fontsize=22)
 plt.ylabel("Attack Rate", fontsize=22)
@@ -71,8 +71,8 @@ axes.set_ylim([0, 1.05])
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 
-plt.setp(ax.get_xticklabels(), fontsize=18)
-plt.setp(ax.get_yticklabels(), fontsize=18)
+plt.setp(ax.get_xticklabels(), fontsize=20)
+plt.setp(ax.get_yticklabels(), fontsize=20)
 
 fig.tight_layout(pad=0.1)
 fig.savefig("fig_baselines.pdf")
