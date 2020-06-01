@@ -1,6 +1,26 @@
 # FoolsGold
 A sybil-resilient distributed learning protocol that penalizes Sybils based on their gradient similarity.
 
+### FoolsGold is also described in two papers:
+
+ 1. Peer-reviewed conference paper:
+```
+"The Limitations of Federated Learning in Sybil Settings." 
+Clement Fung, Chris J.M. Yoon, Ivan Beschastnikh.
+To appear in 23rd International Symposium on Research in Attacks, Intrusions and Defenses (RAID) 2020.
+```
+Bibtex:
+```
+@InProceedings{Fung2020,
+  title     = {{The Limitations of Federated Learning in Sybil Settings}},
+  author    = {Clement Fung and Chris J. M. Yoon and Ivan Beschastnikh},
+  year      = {2020},
+  series    = {RAID},
+  booktitle = {Symposium on Research in Attacks, Intrusion, and Defenses},
+}
+```
+ 2. [Arxiv paper](https://arxiv.org/abs/1808.04866)
+
 ## Running a minimal MNIST example
 
 ### Get the MNIST data. 
