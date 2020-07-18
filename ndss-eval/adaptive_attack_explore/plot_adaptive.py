@@ -26,6 +26,6 @@ plt.setp(ax.get_yticklabels(), fontsize=12)
 plt.axvline(x=0.27, color='k', linestyle='--')
 
 fig.tight_layout(pad=0.1)
-fig.savefig("fig_adaptive-2.pdf")
+fig.savefig("fig_adaptive.pdf")
 
 plt.show()

@@ -1,7 +1,6 @@
 import numpy as np
 import seaborn as sns
 import matplotlib.pylab as plt
-import re
 import pdb
 import pandas as pd
 
