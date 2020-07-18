@@ -1,6 +1,6 @@
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 import pdb
 
 fig, ax = plt.subplots(figsize=(10, 5))
@@ -11,7 +11,7 @@ datasets = ['mnist', 'kddcup', 'amazon']
 plotobj = np.zeros((5, 3))
 doubleobj = np.zeros((5, 4))
 
-df = pd.read_csv("fig3_1749.csv", header=None)
+df = pd.read_csv("results_1749.csv", header=None)
 doubleobj = df.values
 
 # pdb.set_trace()
@@ -22,7 +22,7 @@ for d in range(3):
 
     for i in range(5):
 
-        df = pd.read_csv("fig3results_" + dataset + "_" + str(i) + ".csv", header=None)
+        df = pd.read_csv("results_" + dataset + "_" + str(i) + ".csv", header=None)
         data = df.values
 
         plotobj[:, d] += data[:, 3] / 5
@@ -85,6 +85,6 @@ ax.legend((p1[0], p4[0]),
           loc='best', ncol=3, fontsize=18)
 
 fig.tight_layout(pad=0.1)
-fig.savefig("fig3_mixing.pdf")
+fig.savefig("fig_mixing.pdf")
 
 plt.show()

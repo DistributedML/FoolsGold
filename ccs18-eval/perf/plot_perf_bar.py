@@ -26,25 +26,6 @@ plt.ylim(0, 2)
 
 totals = []
 
-# # find the values and append to list
-# for i in ax.patches:
-#     totals.append(i.get_height())
-
-# # set individual bar lables using above list
-# total = sum(totals)
-
-# # set individual bar lables using above list
-# for i in ax.patches:
-#     # get_x pulls left or right; get_height pushes up or down
-#     height = str((i.get_height() * 100))[0:4]
-#     if i.get_height() < 0.0009:
-#         height = "  0"
-#         ax.text(i.get_x() - 0.05, i.get_height(), height, fontsize=14, color='black')
-#     else:
-#         ax.text(i.get_x() - 0.05, i.get_height() + .001, height, fontsize=14, color='black')
-
-# # ##############################
-
 plt.xlabel('# of Clients', fontsize=16)
 plt.ylabel('Relative Slowdown', fontsize=16)
 
