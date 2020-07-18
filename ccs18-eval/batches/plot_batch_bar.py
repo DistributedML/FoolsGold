@@ -7,10 +7,10 @@ import pdb
 df1 = pd.read_csv("mnist_batch.csv", header=None)
 data1 = df1.values
 
-df2 = pd.read_csv("kddbatch.csv", header=None)
+df2 = pd.read_csv("kdd_batch.csv", header=None)
 data2 = df2.values
 
-df3 = pd.read_csv("amazonbatch.csv", header=None)
+df3 = pd.read_csv("amazon_batch.csv", header=None)
 data3 = df3.values
 
 # plt.plot(data1[0], np.mean(data1[1:3], axis=0), color="black", label="MNIST", lw=3)
