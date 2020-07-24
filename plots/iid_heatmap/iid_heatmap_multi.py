@@ -1,3 +1,7 @@
+import matplotlib
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
+
 import numpy as np
 import seaborn as sns
 import matplotlib.pylab as plt
@@ -27,6 +31,7 @@ def plot():
         center=0, 
         cmap=cmap,
         xticklabels=props,
+        #yticklabels=[100, 75, 50 ,25, 0],
         yticklabels=[100, 75, 50 ,25, 0],
         vmin=0,
         vmax=1,

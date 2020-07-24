@@ -1,3 +1,7 @@
+import matplotlib
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
+
 import matplotlib.pyplot as plt
 import pdb
 import os
@@ -38,7 +42,6 @@ def multiplot_gradients():
     plt.xticks(fontsize=14)
     plt.yticks(np.arange(15), yticks, fontsize=14)
     plt.xlabel("Parameters (Non-IID)", fontsize=18)
-
 
     plt.subplot(1, 2, 2)
     iid_exp = torch.load("squeeze/100-100.pth")
