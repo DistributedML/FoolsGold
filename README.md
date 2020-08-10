@@ -3,7 +3,7 @@ A sybil-resilient distributed learning protocol that penalizes Sybils based on t
 
 ### FoolsGold is also described in two papers:
 
- 1. Peer-reviewed conference paper:
+ 1. Peer-reviewed conference paper [pdf](https://www.cs.ubc.ca/~bestchai/papers/foolsgold-raid2020.pdf):
 ```
 "The Limitations of Federated Learning in Sybil Settings." 
 Clement Fung, Chris J.M. Yoon, Ivan Beschastnikh.
