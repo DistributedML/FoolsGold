@@ -10,7 +10,7 @@ d = 0
 n_classes = 0
 hit_matrix = np.zeros(1)
 it = 0
-
+epsilon = 1e-5
 
 def init(num_clients, num_features, num_classes):
 
@@ -96,7 +96,7 @@ def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, topk_pro
 
     cs = smp.cosine_similarity(sig_filtered_deltas) - np.eye(n)
     # Pardoning: reweight by the max value seen
-    maxcs = np.max(cs, axis=1)
+    maxcs = np.max(cs, axis=1) + epsilon
     for i in range(n):
         for j in range(n):
             if i == j:
@@ -113,7 +113,7 @@ def foolsgold(this_delta, summed_deltas, sig_features_idx, iter, model, topk_pro
     wv[(wv == 1)] = .99
     
     # Logit function
-    wv = (np.log(wv / (1 - wv)) + 0.5)
+    wv = (np.log((wv / (1 - wv)) + epsilon) + 0.5)
     wv[(np.isinf(wv) + wv > 1)] = 1
     wv[(wv < 0)] = 0
     
