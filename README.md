@@ -7,7 +7,7 @@ A sybil-resilient distributed learning protocol that penalizes Sybils based on t
 ```
 "The Limitations of Federated Learning in Sybil Settings." 
 Clement Fung, Chris J.M. Yoon, Ivan Beschastnikh.
-To appear in 23rd International Symposium on Research in Attacks, Intrusions and Defenses (RAID) 2020.
+23rd International Symposium on Research in Attacks, Intrusions and Defenses (RAID) 2020.
 ```
 Bibtex:
 ```
