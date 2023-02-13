@@ -73,14 +73,12 @@ def main():
 
 def load_raw():
 
-    datadump = arff.load(open('amazon.arff', 'rb'))
-    data = np.array(datadump['data'])
+    datadump = list(arff.load('amazon.arff'))
+    data = np.array(datadump)
 
     # Convert labels to categorical
     data[:, -1] = np.argmax(pd.get_dummies(data[:, -1]).values, axis=1)
     data = data.astype(float)
-
-    pdb.set_trace()
 
     np.save("amazon", data)
 
@@ -101,4 +99,5 @@ def standardize_cols(X, mu=None, sigma=None):
 
 if __name__ == "__main__":
 
-    slice_iid()
+    load_raw()
+    main()
