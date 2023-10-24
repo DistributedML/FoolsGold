@@ -24,9 +24,19 @@ Bibtex:
 ## Running a minimal MNIST example
 
 ### Get the MNIST data. 
-Download and gunzip files from http://yann.lecun.com/exdb/mnist/  
-Move all the outputted files to `ML/data/mnist`.
-Navigate to that directory: `cd ML/data/mnist` and run `parse_mnist.py`
+~~Download and gunzip files from http://yann.lecun.com/exdb/mnist/~~  
+Download zipfile from https://git-disl.github.io/GTDLBench/datasets/mnist_datasets/  
+Move all unzipped contents to `ML/data/mnist`.  
+
+Clean the filenames (replace dot with dash) and prep the data: 
+```
+cd ML/data/mnist
+mv train-labels.idx1-ubyte train-labels-idx1-ubyte
+mv train-images.idx3-ubyte train-images-idx3-ubyte
+mv t10k-labels.idx1-ubyte t10k-labels-idx1-ubyte
+mv t10k-images.idx3-ubyte t10k-images-idx3-ubyte
+python parse_mnist.py
+```
 
 ### Create poisoned MNIST 1-7 data
 From main directory navigate to the ML directory: `cd ML/`  
